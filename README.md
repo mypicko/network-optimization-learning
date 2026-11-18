@@ -43,6 +43,13 @@ assets/vendor/           本地化的 Mermaid（信令流程图）
 ## 新增术语
 在 `data/glossary.js` 中加一行即可，全站自动生效。术语按完整单词匹配（区分大小写），同一个模块或课程里只标注第一次出现；资源列表、链接、代码和流程图里不标注。
 
+## 发布更新
+改了 `assets/` 或 `data/` 下的文件后，提交前运行一次：
+```bash
+python3 tools/bump_version.py
+```
+它会给 HTML 里引用的 JS / CSS 加上按文件内容生成的版本号（`?v=…`），避免浏览器缓存旧文件导致“新页面 + 旧脚本”出错。推送到 master 后 GitHub Pages 会自动重新部署。
+
 ## 新增一个主题
 1. 复制 `data/pathways/5g.js` 为新文件，按相同结构编写阶段和模块
 2. 在 `data/topics.js` 中把对应主题的 `status` 改为 `live`

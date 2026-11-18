@@ -119,7 +119,7 @@ window.PATHWAYS["5g"] = {
           title: "3GPP 标准演进：R15 到 R18",
           hours: 2,
           goals: [
-            "知道 3GPP 组织结构（TSG RAN / SA / CT）和规范编号规律",
+            "知道 3GPP 组织结构（TSG RAN、TSG SA、TSG CT 三个技术规范组）和规范编号规律",
             "掌握各 Release 的主要特性，能判断某个功能从哪个版本开始支持"
           ],
           concepts: ["R15：5G 第一版（NSA/SA）", "R16：URLLC 增强、工业物联网、V2X、NR-U、定位", "R17：RedCap、NTN 卫星、FR2-2", "R18：5G-Advanced 第一版", "38 系列 = NR 无线", "23 系列 = 系统架构", "24 系列 = NAS 协议", "33 系列 = 安全"],

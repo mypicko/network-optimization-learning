@@ -138,6 +138,13 @@
     </details>`;
   }
 
+  function quickBanner(pid) {
+    const t = (window.TOPICS || []).find((x) => x.id === pid);
+    return t && t.quick
+      ? `<p class="quick-banner">刚接触这个领域？建议先走 <a href="${esc(t.quick)}">入门快线</a>（约 11 小时，带讲解和判分自测），再回来按岗位学习。</p>`
+      : "";
+  }
+
   function renderPathway() {
     const params = new URLSearchParams(location.search);
     const pid = params.get("t") || "5g";
@@ -171,11 +178,14 @@
         <p class="meta">适合：${esc(p.audience)} · ${esc(p.version)}</p>
         <div class="overall"></div>
         <button class="btn" id="continue">继续学习</button>
+        ${quickBanner(pid)}
       </section>
       <div class="layout">
         <nav class="stage-nav"><ol>${nav}</ol></nav>
         <div class="stages">${stagesHtml}</div>
       </div>`;
+
+    if (window.Glossary) root.querySelectorAll(".mod-body").forEach(window.Glossary.annotate);
 
     function refresh() {
       const s = stats(p);
@@ -237,5 +247,10 @@
     window.mermaid.run({ nodes: Array.from(nodes) }).catch(() => {});
   }
 
-  window.App = { renderHome, renderPathway };
+  // 供入门快线、术语表等页面复用
+  window.App = {
+    renderHome,
+    renderPathway,
+    util: { esc, bar, isDone, setDone, renderFlows }
+  };
 })();

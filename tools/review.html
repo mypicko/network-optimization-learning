@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>资源审核</title>
+  <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    .toolbar { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .rv-module { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin: 16px 0; padding: 12px 16px; }
+    .rv-module h3 { margin: 0 0 8px; font-size: 17px; }
+    .cand { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 10px 0; border-top: 1px dashed var(--border); }
+    .cand.picked { background: var(--done-soft); margin: 0 -16px; padding: 10px 16px; }
+    .cand input[type=checkbox] { width: 18px; height: 18px; margin-top: 4px; }
+    .cand .score { font-weight: 600; color: var(--accent); margin-right: 6px; }
+    .cand textarea { width: 100%; font: inherit; font-size: 14px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); resize: vertical; }
+    .flag { color: #b35900; font-size: 13px; margin-right: 8px; }
+    .quote { font-size: 13px; color: var(--muted); }
+    .parts { font-size: 12px; color: var(--muted); }
+    .empty { padding: 40px 0; }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <h1>社区资源审核</h1>
+      <p>勾选要保留的视频（每个模块建议 3–5 个），可修改推荐理由。勾选状态自动保存在本浏览器。完成后点“导出”，把下载的文件放到 <code>data/resources/</code> 覆盖同名文件。</p>
+    </section>
+    <div class="toolbar">
+      <button class="btn" id="export">导出</button>
+      <span class="meta" id="summary"></span>
+      <label class="meta"><input type="checkbox" id="onlyPicked"> 只看已勾选</label>
+    </div>
+    <div id="list"></div>
+  </main>
+
+  <script>
+  (function () {
+    const topic = new URLSearchParams(location.search).get("t") || "5g";
+    const scripts = [
+      `../data/pathways/${topic}.js`,
+      `../data/resources/${topic}-community.js`,
+      `out/candidates-${topic}.js`
+    ];
+    // 依次加载数据文件（file:// 下也能用），缺失的文件跳过
+    (function next(i) {
+      if (i >= scripts.length) return start();
+      const s = document.createElement("script");
+      s.src = scripts[i];
+      s.onload = s.onerror = () => next(i + 1);
+      document.body.appendChild(s);
+    })(0);
+
+    const STORE = `review-${topic}-v1`;
+    const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+    function load() { try { return JSON.parse(localStorage.getItem(STORE)) || {}; } catch (e) { return {}; } }
+    function save(state) { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* 忽略 */ } }
+
+    function start() {
+      const list = document.getElementById("list");
+      const data = window.CANDIDATES;
+      const pathway = (window.PATHWAYS || {})[topic];
+      if (!data || !pathway) {
+        list.innerHTML = `<p class="empty muted">没有找到候选数据。请先在项目根目录运行：<br><code>python tools/bili_fetch.py</code> 然后 <code>python tools/score.py</code></p>`;
+        return;
+      }
+      // 初始状态：本地保存的勾选 > 已发布的社区资源
+      const published = ((window.RESOURCES_COMMUNITY || {})[topic]) || {};
+      let state = load();
+      if (!Object.keys(state).length) {
+        Object.entries(published).forEach(([mid, items]) => items.forEach((r) => {
+          const bvid = (/BV\w+/.exec(r.url || "") || [])[0];
+          if (bvid) state[bvid] = { mid, picked: true, note: r.note || "" };
+        }));
+      }
+
+      const candById = {};
+      const modules = pathway.stages.flatMap((s) => s.modules);
+      list.innerHTML = modules.map((m) => {
+        const cands = data.modules[m.id] || [];
+        cands.forEach((c) => { candById[c.bvid] = { ...c, mid: m.id }; });
+        const rows = cands.map((c) => {
+          const st = state[c.bvid] || {};
+          const note = st.note ?? (c.review && c.review.reason) ?? "";
+          const flags = c.flags.map((f) => `<span class="flag">⚠ ${esc(f)}</span>`).join("");
+          const quotes = c.praise.map((q) => `「${esc(q)}」`).join(" ");
+          const parts = Object.entries(c.parts).map(([k, v]) => `${k} ${v}`).join(" · ");
+          return `<div class="cand${st.picked ? " picked" : ""}" data-bvid="${esc(c.bvid)}">
+            <input type="checkbox" ${st.picked ? "checked" : ""}>
+            <div>
+              <div><span class="score">${c.score}</span><a href="${esc(c.url)}" target="_blank" rel="noopener">${esc(c.title)}</a></div>
+              <div class="meta">UP：${esc(c.owner)} · ${esc(c.duration)}${c.pages > 1 ? ` · ${c.pages}P` : ""} · 播放 ${c.view} · 收藏率 ${c.fav_rate}% · ${c.year || ""} 年 · 命中 ${c.queries.length} 个搜索词${c.has_subtitle ? " · 有字幕" : ""}</div>
+              ${flags ? `<div>${flags}</div>` : ""}
+              ${quotes ? `<div class="quote">评论：${quotes}</div>` : ""}
+              <div class="parts">${esc(parts)}</div>
+              <textarea rows="1" placeholder="一句推荐理由（会显示在网站上）">${esc(note)}</textarea>
+            </div>
+          </div>`;
+        }).join("");
+        return `<section class="rv-module" data-mid="${m.id}"><h3>${esc(m.title)} <span class="meta">${m.id} · ${cands.length} 个候选</span></h3>${rows || `<p class="muted">没有候选</p>`}</section>`;
+      }).join("");
+
+      function update(bvid, patch) {
+        const c = candById[bvid];
+        state = { ...state, [bvid]: { mid: c.mid, note: "", ...state[bvid], ...patch } };
+        save(state);
+        summary();
+      }
+      function summary() {
+        const picked = Object.values(state).filter((s) => s.picked);
+        const mods = new Set(picked.map((s) => s.mid));
+        document.getElementById("summary").textContent = `已勾选 ${picked.length} 个视频，覆盖 ${mods.size}/${modules.length} 个模块 · 数据生成于 ${data.generated}`;
+      }
+
+      list.addEventListener("change", (e) => {
+        const row = e.target.closest(".cand");
+        if (!row || e.target.type !== "checkbox") return;
+        row.classList.toggle("picked", e.target.checked);
+        update(row.dataset.bvid, { picked: e.target.checked, note: row.querySelector("textarea").value });
+      });
+      list.addEventListener("input", (e) => {
+        const row = e.target.closest(".cand");
+        if (row && e.target.tagName === "TEXTAREA") update(row.dataset.bvid, { note: e.target.value });
+      });
+      document.getElementById("onlyPicked").addEventListener("change", (e) => {
+        list.querySelectorAll(".cand").forEach((row) => {
+          row.style.display = e.target.checked && !row.classList.contains("picked") ? "none" : "";
+        });
+      });
+      document.getElementById("export").addEventListener("click", () => exportFile(state, candById, modules));
+      summary();
+    }
+
+    // 导出：公开文件只含标题、链接、时长和推荐理由，不含 UP 主等用户名，也不含评论
+    function exportFile(state, candById, modules) {
+      const out = {};
+      modules.forEach((m) => {
+        const items = Object.entries(state)
+          .filter(([bvid, s]) => s.picked && s.mid === m.id && candById[bvid])
+          .map(([bvid, s]) => candById[bvid] && { c: candById[bvid], note: s.note })
+          .sort((a, b) => b.c.score - a.c.score)
+          .map(({ c, note }) => ({
+            type: "video",
+            title: c.title,
+            url: c.url,
+            meta: `B 站 · ${c.duration}${c.pages > 1 ? ` · ${c.pages}P` : ""}`,
+            note: note.trim()
+          }));
+        if (items.length) out[m.id] = items;
+      });
+      const body = `// 社区精选资源（由 tools/review.html 导出，请勿手工编辑）\n` +
+        `// 导出时间：${new Date().toLocaleString("zh-CN")}\n` +
+        `window.RESOURCES_COMMUNITY = window.RESOURCES_COMMUNITY || {};\n` +
+        `window.RESOURCES_COMMUNITY[${JSON.stringify(topic)}] = ${JSON.stringify(out, null, 2)};\n`;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([body], { type: "text/javascript" }));
+      a.download = `${topic}-community.js`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+  })();
+  </script>
+</body>
+</html>

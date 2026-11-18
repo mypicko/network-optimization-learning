@@ -22,6 +22,9 @@ index.html               主题列表
 pathway.html             学习路径页（?t=5g）
 data/topics.js           主题目录
 data/pathways/5g.js      5G 路径内容
+data/resources/5g.js     手工精选资源（书籍、开源实验环境、官方文档）
+data/resources/5g-community.js  社区精选视频（由 tools/review.html 导出）
+tools/                   社区资源挖掘脚本（本地运行，见 tools/README.md）
 assets/app.js            渲染与进度
 assets/style.css         样式（支持深色模式、手机端）
 assets/vendor/           本地化的 Mermaid（信令流程图）
@@ -30,7 +33,9 @@ assets/vendor/           本地化的 Mermaid（信令流程图）
 ## 新增一个主题
 1. 复制 `data/pathways/5g.js` 为新文件，按相同结构编写阶段和模块
 2. 在 `data/topics.js` 中把对应主题的 `status` 改为 `live`
-3. 在 `index.html` 和 `pathway.html` 中引入新的数据文件
+3. 在 `index.html` 和 `pathway.html` 中引入新的数据文件（资源文件放在 `data/resources/`）
 
-## 精选资源（下一步）
-模块中的 `resources` 字段将填入从中文通信社区（B 站、知乎、通信人家园）中被反复推荐的视频、文章和书籍，筛选思路参考 HackerTube：被不同的人、在不同时间反复推荐的资源优先。
+## 精选资源
+- 规范出处里的 `TS xx.xxx` 编号会自动链接到 3GPP 官方归档目录
+- `data/resources/5g.js`：书籍、开源实验环境（Open5GS、free5GC、UERANSIM、srsRAN、OpenAirInterface）、官方文档，已覆盖全部 30 个模块
+- `data/resources/5g-community.js`：从 B 站等中文社区挖出的“被反复推荐”的视频，流程见 [tools/README.md](tools/README.md)

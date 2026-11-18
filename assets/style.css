@@ -137,3 +137,16 @@ code { background: var(--code); padding: 1px 6px; border-radius: 4px; font-size:
   .mod-hours { display: none; }
   .mod-body { padding: 4px 14px 14px; }
 }
+
+/* 精选资源 */
+.resources { list-style: none; padding: 0; margin: 0; }
+.resources li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px dashed var(--border); }
+.resources li:last-child { border-bottom: 0; }
+.rbody { min-width: 0; overflow-wrap: anywhere; }
+.rtype { flex: none; font-size: 12px; line-height: 20px; padding: 0 7px; margin-top: 3px; border-radius: 4px; background: var(--chip); color: var(--muted); }
+.rtype-video, .rtype-article { background: var(--accent-soft); color: var(--accent); }
+.rtype-lab, .rtype-tool { background: var(--done-soft); color: var(--done); }
+.rmeta { color: var(--muted); font-size: 13px; margin-left: 4px; }
+.rnote { color: var(--muted); font-size: 14px; }
+.specs a { text-decoration: none; }
+.specs a code { color: var(--accent); }

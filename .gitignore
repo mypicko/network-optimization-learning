@@ -1,0 +1,5 @@
+tools/out/
+tools/bili_cookie.txt
+__pycache__/
+*.pyc
+.DS_Store

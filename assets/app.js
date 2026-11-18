@@ -41,6 +41,32 @@
     const hours = mods.reduce((a, m) => a + (m.hours || 0), 0);
     return { done, total: mods.length, hours, pct: mods.length ? Math.round((done / mods.length) * 100) : 0 };
   }
+  // "TS 38.211" / "TR 38.913" → 3GPP 官方 FTP 归档目录（含全部版本）
+  function specUrl(id) {
+    const m = /^T[SR]\s+(\d{2})\.(\d{3}(?:-\d+)?)$/.exec(String(id).trim());
+    return m ? `https://www.3gpp.org/ftp/Specs/archive/${m[1]}_series/${m[1]}.${m[2]}/` : null;
+  }
+
+  const RESOURCE_TYPES = { video: "视频", article: "文章", book: "书籍", lab: "实验", doc: "官方", tool: "工具" };
+  const RESOURCE_ORDER = ["video", "article", "book", "lab", "tool", "doc"];
+
+  // 资源按模块 id 索引：data/resources/<主题>.js（手工精选）+ <主题>-community.js（社区挖掘）
+  function moduleResources(pid, m) {
+    const pick = (src) => ((src && src[pid]) || {})[m.id] || [];
+    const list = [...(m.resources || []), ...pick(window.RESOURCES_COMMUNITY), ...pick(window.RESOURCES)];
+    return list.sort((a, b) => RESOURCE_ORDER.indexOf(a.type) - RESOURCE_ORDER.indexOf(b.type));
+  }
+
+  function renderResource(r) {
+    const type = RESOURCE_TYPES[r.type] ? `<span class="rtype rtype-${r.type}">${RESOURCE_TYPES[r.type]}</span>` : "";
+    const title = /^https?:\/\//.test(r.url || "")
+      ? `<a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a>`
+      : `<strong>${esc(r.title)}</strong>`;
+    const meta = r.meta ? ` <span class="rmeta">${esc(r.meta)}</span>` : "";
+    const note = r.note ? `<div class="rnote">${esc(r.note)}</div>` : "";
+    return `<li>${type}<div class="rbody">${title}${meta}${note}</div></li>`;
+  }
+
   function bar(pct) {
     return `<div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><span style="width:${pct}%"></span></div>`;
   }
@@ -72,16 +98,23 @@
     const done = isDone(p.id, m.id);
     const goals = m.goals.map((g) => `<li>${esc(g)}</li>`).join("");
     const concepts = m.concepts.map((c) => `<span class="chip">${esc(c)}</span>`).join("");
-    const specs = (m.specs || []).map((s) =>
-      `<li><code>${esc(s.id)}</code> ${esc(s.note)}</li>`).join("");
+    const specs = (m.specs || []).map((s) => {
+      const url = specUrl(s.id);
+      const id = url
+        ? `<a href="${esc(url)}" target="_blank" rel="noopener"><code>${esc(s.id)}</code></a>`
+        : `<code>${esc(s.id)}</code>`;
+      return `<li>${id} ${esc(s.note)}</li>`;
+    }).join("");
     const quiz = (m.quiz || []).map((q, i) =>
       `<details class="quiz"><summary>Q${i + 1}. ${esc(q.q)}</summary><p>${esc(q.a)}</p></details>`).join("");
     const flow = m.flow
       ? `<h4>信令流程</h4><div class="flow"><pre class="mermaid">${esc(m.flow)}</pre></div>`
       : "";
-    const resources = (m.resources && m.resources.length)
-      ? `<ul class="resources">${m.resources.map((r) =>
-          `<li><a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.title)}</a>${r.note ? ` <span class="muted">${esc(r.note)}</span>` : ""}</li>`).join("")}</ul>`
+    const list = moduleResources(p.id, m);
+    const community = list.some((r) => r.type === "video" || r.type === "article");
+    const resources = list.length
+      ? `<ul class="resources">${list.map(renderResource).join("")}</ul>` +
+        (community ? "" : `<p class="muted">社区资源（B 站、知乎、通信人家园中被反复推荐的视频和文章）筛选中。</p>`)
       : `<p class="muted">待补充：将从通信社区（B 站、知乎、通信人家园）中被反复推荐的资源里精选。</p>`;
 
     return `<details class="module${done ? " done" : ""}" id="${m.id}">

@@ -239,11 +239,43 @@
     }
   }
 
+  // Mermaid 约 1 MB，国内访问 GitHub Pages 时下载可能要几十秒：
+  // 不在页面里同步引入，第一次需要画流程图时才在后台加载，加载完补画所有已展开的流程图
+  const MERMAID_SRC = "assets/vendor/mermaid-10.9.1.min.js";
+  let mermaidLoading = null;
+  const pendingScopes = new Set();
+  function loadMermaid() {
+    if (!mermaidLoading) {
+      mermaidLoading = new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = MERMAID_SRC;
+        s.async = true;
+        s.onload = resolve;
+        s.onerror = () => { mermaidLoading = null; reject(new Error("流程图组件加载失败")); };
+        document.head.appendChild(s);
+      });
+    }
+    return mermaidLoading;
+  }
+
   // 只在模块展开时渲染流程图（隐藏元素中 Mermaid 无法正确计算尺寸）
   let mermaidReady = false;
   function renderFlows(scope) {
     const nodes = scope.querySelectorAll("pre.mermaid:not([data-processed])");
-    if (!nodes.length || !window.mermaid) return;
+    if (!nodes.length) return;
+    if (!window.mermaid) {
+      pendingScopes.add(scope);
+      nodes.forEach((n) => n.closest(".flow") && n.closest(".flow").classList.add("flow-loading"));
+      loadMermaid().then(() => {
+        const scopes = [...pendingScopes];
+        pendingScopes.clear();
+        scopes.forEach((sc) => { if (!sc.matches("details") || sc.open) renderFlows(sc); });
+      }).catch(() => {
+        scope.querySelectorAll(".flow-loading").forEach((f) => f.classList.replace("flow-loading", "flow-failed"));
+      });
+      return;
+    }
+    nodes.forEach((n) => n.closest(".flow") && n.closest(".flow").classList.remove("flow-loading", "flow-failed"));
     if (!mermaidReady) {
       const dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
       window.mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "strict" });

@@ -41,7 +41,7 @@
     const done = isDone(q.id, l.id);
     const deeper = (l.deeper || []).map((id) => moduleLink(q.pathway, mods, id)).filter(Boolean);
     const isLast = idx === q.lessons.length - 1;
-    return `<details class="module lesson${done ? " done" : ""}" id="${l.id}">
+    return `<details class="module lesson${done ? " done" : ""}" id="${l.id}" data-note-scope="${l.id}" data-note-title="${esc(`入门快线 第 ${idx} 课 ${l.title}`)}">
       <summary>
         <label class="check" title="标记完成"><input type="checkbox" data-lid="${l.id}" ${done ? "checked" : ""}></label>
         <span class="mod-index">第 ${idx} 课</span>
@@ -85,7 +85,7 @@
       </section>
       <div class="layout">
         <nav class="stage-nav"><ol>${q.lessons.map((l, i) =>
-          `<li><a href="#${l.id}"><span class="stage-no">${i}</span>${esc(l.title)}</a><span class="nav-stat" data-lesson="${l.id}"></span></li>`).join("")}</ol></nav>
+          `<li><div class="nav-row"><a href="#${l.id}"><span class="stage-no">${i}</span>${esc(l.title)}</a><span class="nav-stat" data-lesson="${l.id}"></span></div></li>`).join("")}</ol></nav>
         <div class="stages">${q.lessons.map((l, i) => renderLesson(q, l, i, mods)).join("")}</div>
       </div>`;
 

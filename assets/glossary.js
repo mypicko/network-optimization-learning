@@ -1,25 +1,40 @@
 // 术语表：正文自动标注 + 悬停 / 点按解释 + 术语表页面
 (function () {
-  const ENTRIES = window.GLOSSARY || [];
-  const SKIP = "a, code, pre, summary, button, textarea, input, label, script, style, h1, .term, .mermaid, .flow, .resources, .no-gloss";
+  const SKIP = "a, code, pre, summary, button, textarea, input, label, script, style, h1, svg, .term, .mermaid, .flow, .resources, .no-gloss, .note-ui";
 
   const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-  const slug = (t) => "g-" + t.replace(/[^A-Za-z0-9]/g, "_");
+  // 锚点 id：字母数字原样保留，其他字符（空格、中文等）按码位编码，保证不同术语不撞 id
+  const slug = (t) => "g-" + Array.from(t).map((c) => (/[A-Za-z0-9]/.test(c) ? c : `_${c.codePointAt(0).toString(16)}`)).join("");
 
   // ---------- 索引与匹配 ----------
-  const byWord = new Map();
-  ENTRIES.forEach((e) => [e.t, ...(e.alias || [])].forEach((w) => byWord.set(w, e)));
-  const words = [...byWord.keys()].sort((a, b) => b.length - a.length);
+  // 官方术语表 + 用户自己的释义（存在本浏览器）。同名时用户释义优先，并保留原释义供对照
+  let ENTRIES = [], byWord = new Map(), PATTERN = null;
   const escRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  // 只匹配完整的词：前后不能紧挨字母或数字（中文、空格、标点都可以）
-  const PATTERN = words.length
-    ? new RegExp(`(?<![A-Za-z0-9_\\-])(${words.map(escRe).join("|")})(?![A-Za-z0-9_])`, "g")
-    : null;
 
-  // 在 root 内给术语加标注；同一个 root 里每个术语只标第一次，避免满屏下划线
+  function rebuild() {
+    const base = window.GLOSSARY || [];
+    const mine = (window.NotesStore && window.NotesStore.terms()) || [];
+    const map = new Map(base.map((e) => [e.t, e]));
+    mine.forEach((m) => {
+      const orig = map.get(m.t);
+      map.set(m.t, { ...(orig || { c: "我的" }), t: m.t, zh: m.zh || (orig && orig.zh) || "", d: m.d, mine: true, orig: orig || null });
+    });
+    ENTRIES = [...map.values()];
+    byWord = new Map();
+    ENTRIES.forEach((e) => [e.t, ...(e.alias || [])].forEach((w) => byWord.set(w, e)));
+    const words = [...byWord.keys()].sort((a, b) => b.length - a.length);
+    // 只匹配完整的词：前后不能紧挨字母或数字（中文、空格、标点都可以）
+    PATTERN = words.length
+      ? new RegExp(`(?<![A-Za-z0-9_\\-])(${words.map(escRe).join("|")})(?![A-Za-z0-9_])`, "g")
+      : null;
+  }
+  rebuild();
+
+  const roots = new Set();
+  // 在 root 内给术语加标注：每次出现都标注
   function annotate(root) {
     if (!PATTERN || !root) return;
-    const seen = new Set();
+    roots.add(root);
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
@@ -37,11 +52,10 @@
       const frag = document.createDocumentFragment();
       while ((match = PATTERN.exec(text))) {
         const entry = byWord.get(match[1]);
-        if (!entry || seen.has(entry.t)) continue;
-        seen.add(entry.t);
+        if (!entry) continue;
         frag.appendChild(document.createTextNode(text.slice(last, match.index)));
         const span = document.createElement("span");
-        span.className = "term";
+        span.className = entry.mine ? "term term-mine" : "term";
         span.tabIndex = 0;
         span.dataset.term = entry.t;
         span.textContent = match[1];
@@ -53,6 +67,25 @@
       node.parentNode.replaceChild(frag, node);
     });
   }
+
+  // 用户释义变化后：去掉已不存在的术语标注、更新样式，再给新术语补标注
+  function refresh() {
+    rebuild();
+    roots.forEach((root) => {
+      if (!root.isConnected) { roots.delete(root); return; }
+      root.querySelectorAll(".term").forEach((span) => {
+        const e = byWord.get(span.dataset.term);
+        if (!e) span.replaceWith(document.createTextNode(span.textContent));
+        else span.classList.toggle("term-mine", !!e.mine);
+      });
+      root.normalize();
+      annotate(root);
+    });
+  }
+  window.addEventListener("notes-change", () => {
+    refresh();
+    if (document.getElementById("glossary")) renderPage();
+  });
 
   // ---------- 浮动解释框 ----------
   let tip = null, current = null, hideTimer = null;
@@ -68,9 +101,11 @@
     const name = [e.en, e.zh].filter(Boolean).map(esc).join(" · ");
     const deeper = e.m && moduleTitle(e.m)
       ? `<a href="pathway.html?t=5g#${esc(e.m)}">深入：${esc(moduleTitle(e.m))}</a> · ` : "";
-    return `<div class="tip-head"><strong>${esc(e.t)}</strong> <span>${name}</span></div>
-      <div class="tip-body">${esc(e.d)}</div>
-      <div class="tip-foot">${deeper}<a href="glossary.html#${slug(e.t)}">术语表</a></div>`;
+    const mineTag = e.mine ? ` <span class="tip-mine">我的释义</span>` : "";
+    const orig = e.mine && e.orig ? `<div class="tip-orig"><span>原释义：</span>${esc(e.orig.d)}</div>` : "";
+    return `<div class="tip-head"><strong>${esc(e.t)}</strong> <span>${name}</span>${mineTag}</div>
+      <div class="tip-body">${esc(e.d)}</div>${orig}
+      <div class="tip-foot">${deeper}<a href="glossary.html#${slug(e.t)}">术语表</a> · <a href="#" data-edit-term="${esc(e.t)}">${e.mine ? "修改我的释义" : "补充我的释义"}</a></div>`;
   }
 
   function show(el) {
@@ -144,7 +179,7 @@
     root.innerHTML = `
       <section class="hero">
         <h1>术语表</h1>
-        <p>收录 ${ENTRIES.length} 个 5G 常用术语和缩写。网站正文中带虚线下划线的词，鼠标悬停（手机上点一下）就能看到解释。</p>
+        <p>收录 ${(window.GLOSSARY || []).length} 个 5G 常用术语和缩写${ENTRIES.some((e) => e.mine) ? `，另有 ${ENTRIES.filter((e) => e.mine).length} 条你自己添加或修改的释义（仅你可见）` : ""}。网站正文中带下划线的词，鼠标悬停（手机上点一下）就能看到解释；选中任意词语后右键，可以添加自己的释义。</p>
       </section>
       <div class="gl-tools">
         <input type="search" id="gl-q" placeholder="搜索缩写、英文或中文，如 PRB、会话、干扰" autocomplete="off">
@@ -160,8 +195,10 @@
           return `<div class="gl-item" id="${slug(e.t)}" data-cat="${esc(e.c)}"
               data-search="${esc([e.t, e.en, e.zh, e.d, ...(e.alias || [])].join(" ").toLowerCase())}">
             <dt><strong>${esc(e.t)}</strong> ${e.en ? `<span class="gl-en">${esc(e.en)}</span>` : ""}
-              <span class="gl-zh">${esc(e.zh || "")}</span> <span class="badge">${esc(e.c)}</span></dt>
-            <dd>${esc(e.d)}${mt ? ` <a href="pathway.html?t=5g#${esc(e.m)}">深入学习：${esc(mt)} →</a>` : ""}</dd>
+              <span class="gl-zh">${esc(e.zh || "")}</span> <span class="badge">${esc(e.c)}</span>${e.mine ? ` <span class="badge badge-mine">我的释义</span>` : ""}</dt>
+            <dd>${esc(e.d)}${mt ? ` <a href="pathway.html?t=5g#${esc(e.m)}">深入学习：${esc(mt)} →</a>` : ""}
+              ${e.mine && e.orig ? `<div class="gl-orig">原释义：${esc(e.orig.d)}</div>` : ""}
+              <a href="#" class="gl-edit" data-edit-term="${esc(e.t)}">${e.mine ? "修改我的释义" : "补充我的释义"}</a></dd>
           </div>`;
         }).join("")}
       </dl>`;
@@ -194,5 +231,5 @@
     }
   }
 
-  window.Glossary = { annotate, renderPage };
+  window.Glossary = { annotate, renderPage, refresh, lookup: (w) => byWord.get(w) || null, entries: () => ENTRIES };
 })();

@@ -99,8 +99,9 @@
     const goals = m.goals.map((g) => `<li>${esc(g)}</li>`).join("");
     // 结构化讲解单独存放在 data/lessons/<主题>/<阶段>.js
     const lesson = ((window.LESSONS || {})[p.id] || {})[m.id];
+    const figures = ((window.FIGURES || {})[p.id] || {})[m.id];
     const explain = lesson && window.Lesson
-      ? `<h4>知识讲解</h4>${window.Lesson.renderExplain(m.id, lesson.sections)}` : "";
+      ? `<h4>知识讲解</h4>${window.Lesson.renderExplain(m.id, lesson.sections, { prefix: idx, figures })}` : "";
     const concepts = m.concepts.map((c) => `<span class="chip">${esc(c)}</span>`).join("");
     const specs = (m.specs || []).map((s) => {
       const url = specUrl(s.id);
@@ -121,7 +122,7 @@
         (community ? "" : `<p class="muted">社区资源（B 站、知乎、通信人家园中被反复推荐的视频和文章）筛选中。</p>`)
       : `<p class="muted">待补充：将从通信社区（B 站、知乎、通信人家园）中被反复推荐的资源里精选。</p>`;
 
-    return `<details class="module${done ? " done" : ""}" id="${m.id}">
+    return `<details class="module${done ? " done" : ""}" id="${m.id}" data-note-scope="${m.id}" data-note-title="${esc(idx + " " + m.title)}">
       <summary>
         <label class="check" title="标记完成">
           <input type="checkbox" data-mid="${m.id}" ${done ? "checked" : ""}>
@@ -162,7 +163,10 @@
     document.title = p.title + " · 学习路径";
 
     const nav = p.stages.map((s, i) =>
-      `<li><a href="#${s.id}"><span class="stage-no">${i}</span>${esc(s.title)}</a><span class="nav-stat" data-stage="${s.id}"></span></li>`).join("");
+      `<li class="nav-stage" data-nav-stage="${s.id}">
+        <div class="nav-row"><a href="#${s.id}"><span class="stage-no">${i}</span>${esc(s.title)}</a><span class="nav-stat" data-stage="${s.id}"></span></div>
+        <ol class="nav-sub" hidden></ol>
+      </li>`).join("");
     const stagesHtml = p.stages.map((s, i) => {
       const mods = s.modules.map((m, j) => renderModule(p, m, `${i}.${j + 1}`)).join("");
       return `<section class="stage" id="${s.id}">
@@ -229,14 +233,61 @@
       refresh();
     });
     root.addEventListener("toggle", (e) => {
-      if (e.target.classList && e.target.classList.contains("module") && e.target.open) renderFlows(e.target);
+      if (!(e.target.classList && e.target.classList.contains("module"))) return;
+      if (e.target.open) renderFlows(e.target);
+      updateSubNav(root, p, e.target.id);
     }, true);
 
     refresh();
     if (location.hash) {
       const el = document.getElementById(location.hash.slice(1));
-      if (el && el.tagName === "DETAILS") { el.open = true; renderFlows(el); }
+      const mod = el && (el.tagName === "DETAILS" ? el : el.closest("details.module"));
+      if (mod) {
+        mod.open = true;
+        renderFlows(mod);
+        if (mod !== el) el.scrollIntoView({ block: "start" });
+      }
     }
+  }
+
+  // ---------- 左侧导航：展开的模块在所属阶段下列出小节目录 ----------
+  function updateSubNav(root, p, moduleId) {
+    const si = p.stages.findIndex((s) => s.modules.some((m) => m.id === moduleId));
+    if (si < 0) return;
+    const stage = p.stages[si];
+    const sub = root.querySelector(`[data-nav-stage="${stage.id}"] .nav-sub`);
+    if (!sub) return;
+    const lessons = (window.LESSONS || {})[p.id] || {};
+    const html = stage.modules.map((m, j) => {
+      const el = document.getElementById(m.id);
+      if (!el || !el.open) return "";
+      const prefix = `${si}.${j + 1}`;
+      const lesson = lessons[m.id];
+      const secs = lesson && window.Lesson ? window.Lesson.outline(m.id, lesson.sections, prefix) : [];
+      const secHtml = secs.map((it) =>
+        `<li><a href="#${it.id}" data-sec="${it.id}"><span class="sec-no">${it.no}</span>${esc(it.h)}</a></li>`).join("");
+      return `<li class="nav-mod"><a href="#${m.id}"><span class="sec-no">${prefix}</span>${esc(m.title)}</a>${secHtml ? `<ol class="nav-sec">${secHtml}</ol>` : ""}</li>`;
+    }).join("");
+    sub.innerHTML = html;
+    sub.hidden = !html;
+    observeSections(root);
+  }
+
+  // 滚动时高亮左侧导航里当前所在的小节
+  let sectionObserver = null;
+  function observeSections(root) {
+    if (!("IntersectionObserver" in window)) return;
+    if (sectionObserver) sectionObserver.disconnect();
+    const links = new Map([...root.querySelectorAll(".nav-sec a[data-sec]")].map((a) => [a.dataset.sec, a]));
+    if (!links.size) return;
+    sectionObserver = new IntersectionObserver((entries) => {
+      entries.filter((en) => en.isIntersecting).forEach((en) => {
+        links.forEach((a) => a.classList.remove("active"));
+        const a = links.get(en.target.id);
+        if (a) a.classList.add("active");
+      });
+    }, { rootMargin: "0px 0px -70% 0px" });
+    links.forEach((_, id) => { const h = document.getElementById(id); if (h) sectionObserver.observe(h); });
   }
 
   // Mermaid 约 1 MB，国内访问 GitHub Pages 时下载可能要几十秒：
@@ -260,6 +311,8 @@
 
   // 只在模块展开时渲染流程图（隐藏元素中 Mermaid 无法正确计算尺寸）
   let mermaidReady = false;
+  let renderQueue = Promise.resolve();
+  let mermaidSeq = 0;
   function renderFlows(scope) {
     const nodes = scope.querySelectorAll("pre.mermaid:not([data-processed])");
     if (!nodes.length) return;
@@ -281,7 +334,22 @@
       window.mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "strict" });
       mermaidReady = true;
     }
-    window.mermaid.run({ nodes: Array.from(nodes) }).catch(() => {});
+    // Mermaid 不能并发渲染，且同一批里用毫秒时间戳做 id 会重复，几张图会画到一起。
+    // 所以逐张调用 render 并用自增 id，排队执行，跳过排队期间已画好的节点
+    Array.from(nodes).forEach((node) => {
+      renderQueue = renderQueue.then(async () => {
+        if (!node.isConnected || node.hasAttribute("data-processed")) return;
+        node.setAttribute("data-processed", "true");
+        try {
+          const { svg, bindFunctions } = await window.mermaid.render(`mmd-${++mermaidSeq}`, node.textContent);
+          node.innerHTML = svg;
+          if (bindFunctions) bindFunctions(node);
+        } catch (e) {
+          const flow = node.closest(".flow");
+          if (flow) flow.classList.add("flow-failed");
+        }
+      });
+    });
   }
 
   // 供入门快线、术语表等页面复用

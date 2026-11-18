@@ -97,6 +97,10 @@
   function renderModule(p, m, idx) {
     const done = isDone(p.id, m.id);
     const goals = m.goals.map((g) => `<li>${esc(g)}</li>`).join("");
+    // 结构化讲解单独存放在 data/lessons/<主题>/<阶段>.js
+    const lesson = ((window.LESSONS || {})[p.id] || {})[m.id];
+    const explain = lesson && window.Lesson
+      ? `<h4>知识讲解</h4>${window.Lesson.renderExplain(m.id, lesson.sections)}` : "";
     const concepts = m.concepts.map((c) => `<span class="chip">${esc(c)}</span>`).join("");
     const specs = (m.specs || []).map((s) => {
       const url = specUrl(s.id);
@@ -128,7 +132,8 @@
       </summary>
       <div class="mod-body">
         <h4>学完你能</h4><ul class="goals">${goals}</ul>
-        <h4>核心概念</h4><div class="chips">${concepts}</div>
+        ${explain}
+        <h4>${explain ? "核心概念回顾" : "核心概念"}</h4><div class="chips">${concepts}</div>
         ${specs ? `<h4>规范出处</h4><ul class="specs">${specs}</ul>` : ""}
         ${flow}
         ${quiz ? `<h4>自测</h4>${quiz}` : ""}

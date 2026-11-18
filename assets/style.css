@@ -223,3 +223,11 @@ a.btn:hover { text-decoration: none; }
   .pathway-hero .btn-ghost { margin: 8px 0 0; }
 }
 .lesson-body h4 { font-size: 16px; color: var(--text); margin: 22px 0 8px; padding-left: 10px; border-left: 3px solid var(--accent); letter-spacing: 0; }
+
+/* 模块知识讲解 */
+.explain { border: 1px solid var(--border); border-radius: 10px; padding: 4px 16px 8px; background: var(--bg); }
+.explain-toc { margin: 12px 0 4px; font-size: 14px; }
+.explain-toc ol { margin: 4px 0 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+.explain-toc li { break-inside: avoid; }
+.explain .lesson-body h4 { scroll-margin-top: 16px; }
+@media (max-width: 760px) { .explain { padding: 2px 10px 6px; } .explain-toc ol { columns: 1; } }

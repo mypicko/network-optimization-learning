@@ -9,7 +9,7 @@
   前置基础 → 5G 全局视图 → NR 空口物理层 → NR 高层协议与接入网 → 5G 核心网 → 端到端业务与信令 → 网络部署与优化 → 演进与前沿
 - 4G LTE、IMS 与语音、射频与天线、承载传输、无线网优、O-RAN、蜂窝物联网、卫星 NTN：规划中
 
-每个模块包含：学习目标、核心概念、3GPP 规范出处、信令流程图（部分）、自测题、实操任务、精选资源。
+每个模块包含：学习目标、知识讲解（带小目录）、核心概念、3GPP 规范出处、信令流程图（部分）、自测题、实操任务、精选资源。
 
 ## 本地预览
 ```bash
@@ -30,6 +30,8 @@ assets/quickstart.js     入门快线渲染、判分自测
 assets/glossary.js       术语自动标注、浮动解释、术语表页
 data/topics.js           主题目录
 data/pathways/5g.js      5G 路径内容
+data/lessons/5g/s0–s7.js 5G 各模块的知识讲解（按阶段分文件）
+assets/lesson.js         讲解与课程的共用渲染器
 data/resources/5g.js     手工精选资源（书籍、开源实验环境、官方文档）
 data/resources/5g-community.js  社区精选视频（由 tools/review.html 导出）
 tools/                   社区资源挖掘脚本（本地运行，见 tools/README.md）
@@ -44,7 +46,7 @@ assets/vendor/           本地化的 Mermaid（信令流程图）
 ## 新增一个主题
 1. 复制 `data/pathways/5g.js` 为新文件，按相同结构编写阶段和模块
 2. 在 `data/topics.js` 中把对应主题的 `status` 改为 `live`
-3. 在 `index.html` 和 `pathway.html` 中引入新的数据文件（资源文件放在 `data/resources/`）
+3. 在 `index.html` 和 `pathway.html` 中引入新的数据文件（资源文件放在 `data/resources/`，知识讲解放在 `data/lessons/<主题>/`）
 
 ## 精选资源
 - 规范出处里的 `TS xx.xxx` 编号会自动链接到 3GPP 官方归档目录

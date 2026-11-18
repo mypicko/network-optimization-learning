@@ -2,8 +2,7 @@
 (function () {
   const { esc, bar, isDone, setDone, renderFlows } = window.App.util;
 
-  // 先转义再支持 **加粗**
-  const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  const { rich } = window.Lesson;
 
   function moduleIndex(pathway) {
     const map = {};
@@ -19,24 +18,12 @@
   }
 
   function renderSection(sec, pid, mods) {
-    const parts = [];
-    if (sec.h) parts.push(`<h4>${esc(sec.h)}</h4>`);
-    (sec.p || []).forEach((t) => parts.push(`<p>${rich(t)}</p>`));
-    if (sec.list) parts.push(`<ul class="lesson-list">${sec.list.map((t) => `<li>${rich(t)}</li>`).join("")}</ul>`);
-    if (sec.table) {
-      const head = sec.table.head.map((h) => `<th>${esc(h)}</th>`).join("");
-      const rows = sec.table.rows.map((r) => `<tr>${r.map((c) => `<td>${rich(c)}</td>`).join("")}</tr>`).join("");
-      parts.push(`<div class="table-wrap"><table><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>`);
-    }
-    if (sec.flow) parts.push(`<div class="flow"><pre class="mermaid">${esc(sec.flow)}</pre></div>`);
-    if (sec.routes) {
-      parts.push(sec.routes.map((r) => `<div class="route">
+    return window.Lesson.renderSection(sec, {
+      renderRoutes: (routes) => routes.map((r) => `<div class="route">
         <div class="route-head"><strong>${esc(r.role)}</strong> <span class="meta">${esc(r.desc)} · ${r.modules.length} 个模块 · 约 ${r.modules.reduce((a, id) => a + ((mods[id] || {}).hours || 0), 0)} 小时</span></div>
         <ol class="route-mods">${r.modules.map((id) => `<li>${moduleLink(pid, mods, id)}</li>`).join("")}</ol>
-      </div>`).join(""));
-    }
-    if (sec.tip) parts.push(`<div class="tip">💡 ${rich(sec.tip)}</div>`);
-    return parts.join("");
+      </div>`).join("")
+    });
   }
 
   function renderQuiz(quiz) {

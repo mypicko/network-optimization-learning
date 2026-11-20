@@ -5,7 +5,10 @@
 ## 当前内容
 - **5G 入门快线**（`quickstart.html?t=5g`）：9 节课、约 11 小时，面向零基础和转岗读者。每课有中文讲解、动手练习（不需要现网数据）和即时判分的自测，最后一课按岗位推荐完整路径中的模块
 - **术语表**（`glossary.html`）：148 个常用术语和缩写，可搜索、按类别筛选；全站正文中的术语每次出现都加下划线，悬停（手机上点按）显示解释
-- **我的笔记**（`notes.html`）：在正文中选中文字后右键（手机上选中后自动弹出），可以添加或修改释义、写评论、收藏。评论和收藏在原文中高亮；自己的释义会替换术语提示（并保留原释义对照）。数据只存在本浏览器，可导出 / 导入备份
+- **我的笔记**（`notes.html`）：在正文中选中文字后右键（手机上选中后自动弹出），可以添加或修改释义、写评论、收藏。评论和收藏在原文中高亮；自己的释义会替换术语提示（并保留原释义对照）。数据只存在本浏览器
+- **错题本**（`notes.html#review`）：路径模块的自测题先回忆、再看参考答案并自评；没答对的题和入门快线里答错的选择题自动进错题本，复习答对后移出
+- **站内搜索**（`search.html`）：顶栏搜索框（按 `/` 键聚焦），一次搜模块、讲解小节、自测题、术语、入门快线和我的笔记，结果分组并高亮
+- **备份**：“我的笔记”页的导出 / 导入备份把学习进度、笔记、错题本打包成一个 JSON 文件，换设备可接着学（兼容旧版只含笔记的备份文件）
 - **5G 移动通信**（已上线）：8 个阶段、30 个模块、约 117 小时
   前置基础 → 5G 全局视图 → NR 空口物理层 → NR 高层协议与接入网 → 5G 核心网 → 端到端业务与信令 → 网络部署与优化 → 演进与前沿
 - 4G LTE、IMS 与语音、射频与天线、承载传输、无线网优、O-RAN、蜂窝物联网、卫星 NTN：规划中
@@ -17,6 +20,7 @@
 python3 -m http.server 8000
 # 打开 http://localhost:8000
 ```
+测试：`python3 -m pytest -q tools/tests`（资源挖掘脚本）和 `node --test tools/tests/p0.test.cjs`（错题本、备份、搜索）。
 纯静态站点，无需构建，可直接部署到 GitHub Pages。学习进度保存在浏览器 localStorage 中，无需登录。
 
 ## 目录结构
@@ -34,7 +38,13 @@ data/pathways/5g.js      5G 路径内容
 data/lessons/5g/s0–s7.js 5G 各模块的知识讲解（按阶段分文件）
 assets/lesson.js         讲解与课程的共用渲染器（小节编号、配图）
 data/figures/5g.js       讲解配图（由 tools/figures/build.mjs 生成）
-notes.html               我的笔记
+notes.html               我的笔记（含错题本、备份）
+search.html              站内搜索
+assets/review.js         错题本数据（localStorage）
+assets/backup.js         备份导出 / 导入（进度 + 笔记 + 错题本）
+assets/search-index.js   搜索索引与匹配（纯函数）
+assets/search-page.js    搜索页
+assets/site-search.js    顶栏搜索框的 / 快捷键
 assets/store.js          笔记数据（localStorage）
 assets/notes.js          划词菜单、释义 / 评论对话框、原文高亮
 assets/notes-page.js     我的笔记页面

@@ -241,7 +241,7 @@ a.btn:hover { text-decoration: none; }
 .stage-nav .nav-sub { list-style: none; margin: 0 0 6px 10px; padding: 0 0 0 10px; border-left: 2px solid var(--border); }
 .nav-sub .nav-mod > a { display: block; padding: 3px 0; font-size: 13px; color: var(--muted); }
 .nav-sub .nav-mod.open > a { font-weight: 600; color: var(--text); }
-.stage-nav .nav-sec { list-style: none; margin: 0 0 4px; padding: 0; }
+.stage-nav .nav-sec { list-style: none; margin: 0 0 4px; padding: 0 0 0 16px; }
 .nav-sec a { display: flex; gap: 6px; padding: 2px 6px; margin-left: -6px; border-radius: 4px; font-size: 13px; color: var(--muted); line-height: 1.5; }
 .nav-sec a:hover { color: var(--text); text-decoration: none; background: var(--chip); }
 .nav-sec a.active { color: var(--accent); background: var(--accent-soft); }
@@ -343,3 +343,34 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
 /* 手机上配图保持可读的最小宽度，在图框内横向滑动 */
 @media (max-width: 640px) { .figure-svg svg { min-width: 560px; } .figure-svg { -webkit-overflow-scrolling: touch; } }
 .layout > .stages, .layout > .stage-nav { min-width: 0; }
+
+/* 自测：先回忆，再看参考答案并自评 */
+.sq { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+.sq-q { font-weight: 500; margin: 0 0 8px; }
+.sq-answer > p:first-child { margin: 0 0 8px; padding: 8px 10px; border-radius: 6px; background: var(--chip); }
+.sq-grade { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sq-result { margin: 8px 0 0 !important; }
+.btn-small { font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; }
+.btn-small:hover { border-color: var(--accent); }
+.btn-small.ok:hover { border-color: var(--done); background: var(--done-soft); }
+.btn-small.bad:hover { border-color: #d1242f; background: rgba(209, 36, 47, 0.1); }
+.badge.badge-wrong { background: rgba(209, 36, 47, 0.12); color: #d1242f; font-weight: 500; }
+.review-link { display: inline-block; margin-left: 12px; font-size: 14px; }
+.nb-answer { margin: 6px 0; }
+.nb-answer summary { cursor: pointer; color: var(--accent); font-size: 14px; }
+@media (max-width: 760px) { .review-link { display: block; margin: 10px 0 0; } }
+
+/* 站内搜索 */
+.site-search input { font: inherit; font-size: 14px; width: 170px; padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg); color: var(--text); }
+.site-search input:focus { outline: 2px solid var(--accent); outline-offset: -1px; width: 220px; }
+.sr-form input { font: inherit; font-size: 16px; width: 100%; max-width: 640px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); box-sizing: border-box; }
+.sr-form input:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+.sr-group { margin: 22px 0; }
+.sr-group h2 { font-size: 17px; margin: 0 0 8px; }
+.sr-list { list-style: none; margin: 0; padding: 0; }
+.sr-list li { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.sr-title { font-weight: 600; }
+.sr-crumb { font-size: 12px; margin-top: 2px; }
+.sr-snippet { font-size: 14px; color: var(--muted); margin-top: 4px; line-height: 1.6; }
+#sr-results mark, .sr-title mark { background: rgba(255, 196, 0, 0.35); color: inherit; border-radius: 2px; padding: 0 1px; }
+@media (max-width: 760px) { .site-search { width: 100%; } .site-search input, .site-search input:focus { width: 100%; box-sizing: border-box; } }

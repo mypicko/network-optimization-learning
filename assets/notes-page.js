@@ -1,4 +1,4 @@
-// “我的笔记”页面：查看、修改、删除自定义释义、评论和收藏，支持导出 / 导入备份
+// “我的笔记”页面：查看、修改、删除自定义释义、评论、收藏和错题本，支持导出 / 导入备份（含学习进度）
 (function () {
   const Store = window.NotesStore;
   const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -9,8 +9,10 @@
   const TABS = [
     { id: "terms", label: "我的释义" },
     { id: "comments", label: "评论" },
-    { id: "bookmarks", label: "收藏" }
+    { id: "bookmarks", label: "收藏" },
+    { id: "review", label: "错题本" }
   ];
+  const Review = window.ReviewStore;
   let tab = (location.hash || "").slice(1);
   if (!TABS.some((t) => t.id === tab)) tab = "terms";
 
@@ -54,16 +56,29 @@
     </li>`).join("")}</ul>`;
   }
 
+  function reviewHtml() {
+    const list = Review ? Review.wrong() : [];
+    if (!list.length) return empty("错题本是空的。在模块或入门快线的自测里没答对的题，会自动记到这里。");
+    return `<p class="meta">先自己回忆答案，再展开参考答案核对。复习后答对了，点“已掌握”移出错题本。</p>
+    <ul class="nb-list">${list.map((it) => `<li>
+      <div class="nb-head"><strong>${esc(it.q)}</strong> <span class="badge badge-wrong">答错 ${it.wrong} 次</span>
+        <span class="meta nb-date">${fmt(it.updated)}</span></div>
+      <details class="nb-answer"><summary>参考答案</summary><div class="nb-body">${esc(it.a)}</div></details>
+      <div class="nb-foot">${link(it)}</div>
+      <div class="nb-actions"><button data-master-review="${esc(it.key)}">已掌握</button><button class="danger" data-del-review="${esc(it.key)}">删除</button></div>
+    </li>`).join("")}</ul>`;
+  }
+
   const empty = (msg) => `<p class="muted nb-empty">${esc(msg)}</p>`;
 
   function render() {
     const root = document.getElementById("notes");
-    const counts = { terms: Store.terms().length, comments: Store.comments().length, bookmarks: Store.bookmarks().length };
-    const body = tab === "terms" ? termsHtml() : tab === "comments" ? commentsHtml() : bookmarksHtml();
+    const counts = { terms: Store.terms().length, comments: Store.comments().length, bookmarks: Store.bookmarks().length, review: Review ? Review.wrong().length : 0 };
+    const body = { terms: termsHtml, comments: commentsHtml, bookmarks: bookmarksHtml, review: reviewHtml }[tab]();
     root.innerHTML = `
       <section class="hero">
         <h1>我的笔记</h1>
-        <p>在网站正文中选中文字后右键（手机上选中后会自动弹出菜单），可以添加自己的释义、写评论或收藏。笔记只保存在当前浏览器里，换设备或清理浏览器数据会丢失，建议定期导出备份。</p>
+        <p>在网站正文中选中文字后右键（手机上选中后会自动弹出菜单），可以添加自己的释义、写评论或收藏。笔记、学习进度和错题本只保存在当前浏览器里，换设备或清理浏览器数据会丢失。“导出备份”会把三者打包成一个文件，在另一台设备上“导入备份”即可接着学。</p>
         <div class="nb-tools">
           <button class="btn" id="nb-export">导出备份</button>
           <label class="btn btn-ghost">导入备份<input type="file" id="nb-import" accept="application/json,.json" hidden></label>
@@ -91,9 +106,13 @@
       if (tabBtn) { tab = tabBtn.dataset.tab; history.replaceState(null, "", "#" + tab); render(); return; }
       if (t.closest("#nb-export")) {
         const d = new Date();
-        download(`通信学习笔记-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`, Store.exportJson());
+        download(`通信学习备份-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(d.getDate()).padStart(2, "0")}.json`, window.Backup.exportText());
         return;
       }
+      const master = t.closest("[data-master-review]");
+      if (master) { Review.master(master.dataset.masterReview); toast("已移出错题本"); }
+      const delR = t.closest("[data-del-review]");
+      if (delR && confirm("从错题本删除这道题？")) { Review.remove(delR.dataset.delReview); toast("已删除"); }
       const delTerm = t.closest("[data-del-term]");
       if (delTerm && confirm(`删除“${delTerm.dataset.delTerm}”的释义？`)) { Store.removeTerm(delTerm.dataset.delTerm); toast("已删除"); }
       const editC = t.closest("[data-edit-comment]");
@@ -108,11 +127,13 @@
       const file = ev.target.files[0];
       if (file.size > 5 * 1024 * 1024) { toast("文件太大"); return; }
       file.text().then((text) => {
-        const r = Store.importJson(text);
-        toast(`已导入：释义 ${r.terms} 条、评论 ${r.comments} 条、收藏 ${r.bookmarks} 条`);
-      }).catch((e) => toast("导入失败：" + e.message));
+        const r = window.Backup.importText(text);
+        toast(`已导入：完成进度 ${r.progress} 项、释义 ${r.terms} 条、评论 ${r.comments} 条、收藏 ${r.bookmarks} 条、错题 ${r.review} 道`);
+        render();
+      }).catch((e) => toast("导入失败：" + e.message)).finally(() => { ev.target.value = ""; });
     });
     window.addEventListener("notes-change", render);
+    window.addEventListener("review-change", render);
   }
 
   window.NotesPage = { render: () => { render(); bind(); } };

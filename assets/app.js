@@ -110,8 +110,7 @@
         : `<code>${esc(s.id)}</code>`;
       return `<li>${id} ${esc(s.note)}</li>`;
     }).join("");
-    const quiz = (m.quiz || []).map((q, i) =>
-      `<details class="quiz"><summary>Q${i + 1}. ${esc(q.q)}</summary><p>${esc(q.a)}</p></details>`).join("");
+    const quiz = (m.quiz || []).map((q, i) => renderSelfQuiz(p, m, idx, q, i)).join("");
     const flow = m.flow
       ? `<h4>信令流程</h4><div class="flow"><pre class="mermaid">${esc(m.flow)}</pre></div>`
       : "";
@@ -142,6 +141,62 @@
         <h4>精选资源</h4>${resources}
       </div>
     </details>`;
+  }
+
+  // ---------- 自测：先回忆，再看参考答案并自评；没答对的题进错题本 ----------
+  const quizKey = (pid, mid, i) => `${pid}/${mid}/${i}`;
+
+  function renderSelfQuiz(p, m, idx, q, i) {
+    const key = quizKey(p.id, m.id, i);
+    const rec = window.ReviewStore && window.ReviewStore.get(key);
+    const tag = rec && rec.status === "wrong" ? `<span class="badge badge-wrong">错题本</span>` : "";
+    return `<div class="sq" id="${esc(m.id)}-q${i + 1}" data-qkey="${esc(key)}" data-qmod="${esc(m.id)}" data-qi="${i}" data-qtitle="${esc(idx + " " + m.title)}">
+      <p class="sq-q">Q${i + 1}. ${esc(q.q)} ${tag}</p>
+      <button type="button" class="btn-small" data-sq-show>先想一想，再看参考答案</button>
+      <div class="sq-answer" hidden>
+        <p>${esc(q.a)}</p>
+        <div class="sq-grade"><span class="meta">对照参考答案，你答对了吗？</span>
+          <button type="button" class="btn-small ok" data-sq-grade="1">✅ 答对了</button>
+          <button type="button" class="btn-small bad" data-sq-grade="0">❌ 没答对</button>
+        </div>
+        <p class="sq-result meta" hidden></p>
+      </div>
+    </div>`;
+  }
+
+  function handleSelfQuiz(e, p) {
+    const box = e.target.closest(".sq");
+    if (!box) return false;
+    if (e.target.closest("[data-sq-show]")) {
+      box.querySelector(".sq-answer").hidden = false;
+      e.target.closest("[data-sq-show]").hidden = true;
+      return true;
+    }
+    const g = e.target.closest("[data-sq-grade]");
+    if (!g || !window.ReviewStore) return !!g;
+    const correct = g.dataset.sqGrade === "1";
+    const mod = allModules(p).find((m) => m.id === box.dataset.qmod);
+    const q = mod && mod.quiz[Number(box.dataset.qi)];
+    if (!q) return true;
+    const wasWrong = (window.ReviewStore.get(box.dataset.qkey) || {}).status === "wrong";
+    window.ReviewStore.record({
+      key: box.dataset.qkey, q: q.q, a: q.a, title: box.dataset.qtitle,
+      page: `pathway.html?t=${p.id}`, scope: box.id
+    }, correct);
+    const res = box.querySelector(".sq-result");
+    res.hidden = false;
+    res.textContent = correct
+      ? (wasWrong ? "答对了，已从错题本移出。" : "答对了。")
+      : "已记入错题本，可以在“我的笔记 → 错题本”里复习。";
+    const tag = box.querySelector(".badge-wrong");
+    if (correct && tag) tag.remove();
+    if (!correct && !tag) box.querySelector(".sq-q").insertAdjacentHTML("beforeend", ` <span class="badge badge-wrong">错题本</span>`);
+    return true;
+  }
+
+  function reviewLink() {
+    const n = window.ReviewStore ? window.ReviewStore.wrong().length : 0;
+    return n ? `<a class="review-link" href="notes.html#review">📒 错题本：${n} 题待复习</a>` : "";
   }
 
   function quickBanner(pid) {
@@ -187,6 +242,7 @@
         <p class="meta">适合：${esc(p.audience)} · ${esc(p.version)}</p>
         <div class="overall"></div>
         <button class="btn" id="continue">继续学习</button>
+        <span class="review-slot">${reviewLink()}</span>
         ${quickBanner(pid)}
       </section>
       <div class="layout">
@@ -224,6 +280,7 @@
     root.addEventListener("click", (e) => {
       // 点击复选框只切换完成状态，不展开 / 收起模块
       if (e.target.closest(".check")) e.stopPropagation();
+      if (handleSelfQuiz(e, p)) return;
       // 点左侧导航里的模块名：展开该模块再跳过去（收起的 <details> 只跳转不展开）
       const navMod = e.target.closest("a[data-mod]");
       if (navMod) {
@@ -244,14 +301,22 @@
       updateSubNav(root, p, e.target.id);
     }, true);
 
+    window.addEventListener("review-change", () => {
+      root.querySelector(".review-slot").innerHTML = reviewLink();
+    });
+
     refresh();
     if (location.hash) {
-      const el = document.getElementById(location.hash.slice(1));
+      const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
       const mod = el && (el.tagName === "DETAILS" ? el : el.closest("details.module"));
       if (mod) {
         mod.open = true;
         renderFlows(mod);
-        if (mod !== el) el.scrollIntoView({ block: "start" });
+        // 展开后再滚动；浏览器在 load 时可能把滚动位置复原，所以 load 之后再滚一次
+        const go = () => el.scrollIntoView({ block: "start" });
+        go();
+        if (document.readyState === "complete") setTimeout(go, 0);
+        else window.addEventListener("load", () => setTimeout(go, 0), { once: true });
       }
     }
   }

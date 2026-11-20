@@ -26,10 +26,11 @@
     });
   }
 
-  function renderQuiz(quiz) {
+  function renderQuiz(qs, l, idx) {
+    const quiz = l.quiz;
     if (!quiz || !quiz.length) return "";
     return `<h4>自测</h4>` + quiz.map((q, i) => `
-      <div class="mcq" data-answer="${q.answer}">
+      <div class="mcq" id="${l.id}-q${i + 1}" data-answer="${q.answer}" data-qkey="qs-${esc(qs.id)}/${esc(l.id)}/${i}" data-qi="${i}" data-lid="${esc(l.id)}" data-qtitle="${esc(`入门快线 第 ${idx} 课 ${l.title}`)}">
         <p class="mcq-q">Q${i + 1}. ${esc(q.q)}</p>
         <div class="mcq-opts">${q.options.map((o, j) =>
           `<button type="button" class="mcq-opt" data-i="${j}">${String.fromCharCode(65 + j)}. ${esc(o)}</button>`).join("")}</div>
@@ -52,13 +53,26 @@
         <p class="lesson-summary">${esc(l.summary)}</p>
         ${l.sections.map((s) => renderSection(s, q.pathway, mods)).join("")}
         ${l.practice ? `<h4>动手练习</h4><p class="practice">${rich(l.practice)}</p>` : ""}
-        ${renderQuiz(l.quiz)}
+        ${renderQuiz(q, l, idx)}
         ${deeper.length ? `<h4>想深入，看完整路径的这些模块</h4><div class="deeper">${deeper.join("")}</div>` : ""}
         <div class="lesson-next">
           <button class="btn" data-finish="${l.id}">${isLast ? "完成入门快线 🎉" : "完成本课，下一课 →"}</button>
         </div>
       </div>
     </details>`;
+  }
+
+  // 入门快线的选择题也记入错题本（参考答案 = 正确选项 + 解析）
+  function recordMcq(q, box, correct) {
+    if (!window.ReviewStore) return;
+    const lesson = q.lessons.find((l) => l.id === box.dataset.lid);
+    const item = lesson && lesson.quiz[Number(box.dataset.qi)];
+    if (!item) return;
+    const right = `${String.fromCharCode(65 + item.answer)}. ${item.options[item.answer]}`;
+    window.ReviewStore.record({
+      key: box.dataset.qkey, q: item.q, a: `正确答案：${right}。${item.explain || ""}`,
+      title: box.dataset.qtitle, page: `quickstart.html?t=${q.pathway}`, scope: box.id
+    }, correct);
   }
 
   function render() {
@@ -137,7 +151,9 @@
         });
         const ex = box.querySelector(".mcq-explain");
         ex.hidden = false;
-        ex.textContent = (Number(opt.dataset.i) === answer ? "✅ 答对了。" : "❌ 再想想。") + ex.textContent;
+        const correct = Number(opt.dataset.i) === answer;
+        ex.textContent = (correct ? "✅ 答对了。" : "❌ 再想想。已记入错题本。") + ex.textContent;
+        recordMcq(q, box, correct);
         return;
       }
       const fin = e.target.closest("[data-finish]");
@@ -160,7 +176,19 @@
     }, true);
 
     refresh();
-    if (location.hash) openLesson(location.hash.slice(1), false);
+    if (location.hash) {
+      // 锚点可能是课程本身，也可能是课程里的某道题（来自错题本）
+      const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+      const lesson = el && el.closest("details.lesson");
+      if (lesson) {
+        openLesson(lesson.id, false);
+        // 展开后再滚动；浏览器在 load 时可能把滚动位置复原，所以 load 之后再滚一次
+        const go = () => el.scrollIntoView({ block: "start" });
+        go();
+        if (document.readyState === "complete") setTimeout(go, 0);
+        else window.addEventListener("load", () => setTimeout(go, 0), { once: true });
+      }
+    }
   }
 
   window.Quickstart = { render };

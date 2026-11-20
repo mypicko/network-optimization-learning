@@ -1,6 +1,7 @@
 // 5G 学习路径数据
 // 结构：pathway → stages（阶段）→ modules（模块）
 // 每个模块：学习目标、核心概念、规范出处、信令流程（可选，Mermaid）、自测题、实操任务、精选资源
+// tools（可选）：工具箱里相关的计算器 id（arfcn / numerology / rate），见 tools.html
 window.PATHWAYS = window.PATHWAYS || {};
 
 window.PATHWAYS["5g"] = {
@@ -18,6 +19,7 @@ window.PATHWAYS["5g"] = {
       modules: [
         {
           id: "s0-ofdm",
+          tools: ["numerology"],
           title: "OFDM 与调制",
           hours: 4,
           goals: [
@@ -95,6 +97,7 @@ window.PATHWAYS["5g"] = {
       modules: [
         {
           id: "s1-scenarios",
+          tools: ["rate"],
           title: "三大场景与关键指标",
           hours: 2,
           goals: [
@@ -136,6 +139,7 @@ window.PATHWAYS["5g"] = {
         },
         {
           id: "s1-deploy",
+          tools: ["arfcn", "rate"],
           title: "部署方式：NSA 与 SA",
           hours: 3,
           goals: [
@@ -171,6 +175,7 @@ window.PATHWAYS["5g"] = {
       modules: [
         {
           id: "s2-numerology",
+          tools: ["numerology", "arfcn"],
           title: "参数集、帧结构与 BWP",
           hours: 5,
           goals: [
@@ -197,6 +202,7 @@ window.PATHWAYS["5g"] = {
         },
         {
           id: "s2-ssb",
+          tools: ["arfcn"],
           title: "SSB 与小区搜索",
           hours: 4,
           goals: [
@@ -243,6 +249,7 @@ window.PATHWAYS["5g"] = {
         },
         {
           id: "s2-coding",
+          tools: ["rate"],
           title: "信道编码与 HARQ",
           hours: 3,
           goals: [
@@ -683,6 +690,7 @@ window.PATHWAYS["5g"] = {
       modules: [
         {
           id: "s6-kpi",
+          tools: ["rate"],
           title: "关键 KPI 与无线测量",
           hours: 4,
           goals: [

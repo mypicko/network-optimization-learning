@@ -5,8 +5,10 @@
 (function (root) {
   const TYPES = [
     { id: "term", label: "术语" },
+    { id: "tool", label: "工具箱" },
     { id: "module", label: "学习模块" },
     { id: "section", label: "知识讲解" },
+    { id: "log", label: "信令日志" },
     { id: "quiz", label: "自测题" },
     { id: "quick", label: "入门快线" },
     { id: "note", label: "我的笔记" }
@@ -28,8 +30,15 @@
     return (sections || []).map((s, i) => (s.h ? { s, id: `${idBase}-x${i + 1}`, no: `${prefix}.${++n}` } : null)).filter(Boolean);
   }
 
-  function buildIndex({ pathways = {}, lessons = {}, glossary = [], quickstart = {}, notes = null }) {
-    const docs = [];
+  // 工具箱里的计算器（tools.html）
+  const TOOL_DOCS = [
+    { type: "tool", title: "NR-ARFCN 与频率换算", href: "tools.html#arfcn", crumb: "工具箱", text: "NR-ARFCN 频点 频率 换算 信道栅格 全球栅格 频段 n1 n3 n28 n41 n77 n78 n79 n258 TS 38.104" },
+    { type: "tool", title: "参数集与 RB 数", href: "tools.html#numerology", crumb: "工具箱", text: "参数集 numerology μ 子载波间隔 SCS 时隙 符号 CP 循环前缀 RB 资源块 带宽 TS 38.211 38.101" },
+    { type: "tool", title: "峰值速率估算", href: "tools.html#rate", crumb: "工具箱", text: "峰值速率 吞吐量 理论速率 MIMO 层数 调制 256QAM TDD 帧结构 上下行配比 DDDSU TS 38.306" }
+  ];
+
+  function buildIndex({ pathways = {}, lessons = {}, glossary = [], quickstart = {}, notes = null, logs = {} }) {
+    const docs = [...TOOL_DOCS];
     Object.values(pathways).forEach((p) => {
       const page = `pathway.html?t=${encodeURIComponent(p.id)}`;
       const pl = lessons[p.id] || {};
@@ -44,6 +53,13 @@
         if (lesson) {
           headedSections(lesson.sections, no, m.id).forEach(({ s, id, no: sno }) => docs.push({
             type: "section", title: `${sno} ${s.h}`, href: `${page}#${id}`, crumb: `${crumb} · ${no} ${m.title}`, text: sectionText(s)
+          }));
+        }
+        const log = (logs[p.id] || {})[m.id];
+        if (log) {
+          log.steps.forEach((st, i) => docs.push({
+            type: "log", title: st.msg, href: `${page}#${m.id}-log${i + 1}`, crumb: `${crumb} · ${no} ${m.title} · ${st.dir}`,
+            text: join(st.iface, st.fields.map((f) => f.join(" ")), st.explain, st.spec)
           }));
         }
         (m.quiz || []).forEach((q, i) => docs.push({

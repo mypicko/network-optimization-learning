@@ -11,6 +11,7 @@
         lessons: window.LESSONS || {},
         glossary: window.GLOSSARY || [],
         quickstart: window.QUICKSTART || {},
+        logs: window.SIGLOGS || {},
         notes: window.NotesStore ? window.NotesStore.all() : null
       });
     }

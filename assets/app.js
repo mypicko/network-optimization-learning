@@ -136,8 +136,10 @@
         <h4>${explain ? "核心概念回顾" : "核心概念"}</h4><div class="chips">${concepts}</div>
         ${specs ? `<h4>规范出处</h4><ul class="specs">${specs}</ul>` : ""}
         ${flow}
+        ${sigLogHtml(p, m)}
         ${quiz ? `<h4>自测</h4>${quiz}` : ""}
         ${m.practice ? `<h4>实操任务</h4><p class="practice">${esc(m.practice)}</p>` : ""}
+        ${toolsHtml(m)}
         <h4>精选资源</h4>${resources}
       </div>
     </details>`;
@@ -197,6 +199,33 @@
   function reviewLink() {
     const n = window.ReviewStore ? window.ReviewStore.wrong().length : 0;
     return n ? `<a class="review-link" href="notes.html#review">📒 错题本：${n} 题待复习</a>` : "";
+  }
+
+  // 示意信令日志：data/logs/<主题>.js，逐条消息可展开看字段解读
+  function sigLogHtml(p, m) {
+    const log = ((window.SIGLOGS || {})[p.id] || {})[m.id];
+    if (!log) return "";
+    const steps = log.steps.map((st, i) => `<li><details class="sl-step" id="${m.id}-log${i + 1}">
+      <summary><span class="sl-no">${i + 1}</span><span class="sl-dir">${esc(st.dir)}</span><span class="sl-msg">${esc(st.msg)}</span><span class="sl-if">${esc(st.iface)}</span></summary>
+      <div class="sl-body">
+        <table class="sl-fields"><tbody>${st.fields.map(([f, n]) => `<tr><td><code>${esc(f)}</code></td><td>${esc(n || "")}</td></tr>`).join("")}</tbody></table>
+        <p>${esc(st.explain)}</p>
+        <p class="meta">规范：${esc(st.spec)}</p>
+      </div>
+    </details></li>`).join("");
+    return `<h4>信令日志解读 <span class="badge">示意</span></h4>
+      <p class="sl-title"><strong>${esc(log.title)}</strong></p>
+      <p>${esc(log.intro)}</p>
+      <p class="sl-note">示意日志：按 3GPP 规范的消息结构编写，用于教学，字段取值为虚构示例，不是现网实测；不同厂商工具的显示格式会有差异。点开每条消息看关键字段和解读。</p>
+      <ol class="siglog no-gloss">${steps}</ol>`;
+  }
+
+  // 工具箱里与本模块相关的计算器
+  const TOOL_NAMES = { arfcn: "NR-ARFCN 与频率换算", numerology: "参数集与 RB 数", rate: "峰值速率估算" };
+  function toolsHtml(m) {
+    const links = (m.tools || []).filter((t) => TOOL_NAMES[t])
+      .map((t) => `<a href="tools.html#${t}">🧮 ${TOOL_NAMES[t]}</a>`).join("");
+    return links ? `<h4>动手算一算</h4><div class="mod-tools">${links}</div>` : "";
   }
 
   function quickBanner(pid) {
@@ -308,7 +337,8 @@
     refresh();
     if (location.hash) {
       const el = document.getElementById(decodeURIComponent(location.hash.slice(1)));
-      const mod = el && (el.tagName === "DETAILS" ? el : el.closest("details.module"));
+      if (el && el.classList.contains("sl-step")) el.open = true;
+      const mod = el && (el.classList.contains("module") ? el : el.closest("details.module"));
       if (mod) {
         mod.open = true;
         renderFlows(mod);

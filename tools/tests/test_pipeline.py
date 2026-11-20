@@ -98,5 +98,18 @@ class FetchTest(unittest.TestCase):
         self.assertEqual(preliminary_rank(hits, "5g"), ["A"])
 
 
+class ModuleReviewTest(unittest.TestCase):
+    def test_module_specific_review_wins(self):
+        cache = {"module": "s2-ssb", "hits": {"BV1": {"queries": {"q": 1}}}, "queries_done": ["q"],
+                 "videos": {"BV1": video(bvid="BV1")}}
+        general = {"BV1": {"relevant": True, "accurate": True}}
+        both = {**general, "s2-ssb:BV1": {"relevant": False, "accurate": True}}
+        s_general = build_module(cache, "5g", {}, general, 5)[0]
+        s_both = build_module(cache, "5g", {}, both, 5)[0]
+        self.assertLess(s_both["score"], s_general["score"])
+        self.assertIn("Claude 审核：不对题", s_both["flags"])
+        other = build_module({**cache, "module": "s0-ofdm"}, "5g", {}, both, 5)[0]
+        self.assertEqual(other["score"], s_general["score"])
+
 if __name__ == "__main__":
     unittest.main()

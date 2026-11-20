@@ -133,7 +133,8 @@ def build_module(cache, topic, mentions, reviews, keep):
     out = []
     for bvid, v in cache.get("videos", {}).items():
         q = len(hits.get(bvid, {}).get("queries", {})) or 1
-        review = reviews.get(bvid)
+        # 审核可以按模块写（"s2-ssb:BV…"），优先于通用审核（"BV…"）：同一门大课可能只对部分模块对题
+        review = reviews.get(f"{cache.get('module')}:{bvid}") or reviews.get(bvid)
         s = score_video(v, n_queries, q, mentions.get(bvid, 0), topic, review)
         out.append({
             "bvid": bvid,

@@ -418,3 +418,50 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
 .sl-fields td:first-child { width: 48%; }
 .sl-fields code { white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
 @media (max-width: 760px) { .sl-fields td { display: block; width: auto !important; } .sl-fields td:first-child { border-top: 1px solid var(--border); } .sl-fields td + td { border-top: 0; padding-top: 0; color: var(--muted); } .sl-if { margin-left: 0; width: 100%; } }
+
+/* 模拟考试 */
+.ex-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin: 16px 0; }
+.ex-card h2 { font-size: 16px; margin: 14px 0 8px; }
+.ex-card h2:first-child { margin-top: 0; }
+.ex-row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.ex-row.ex-col { flex-direction: column; align-items: flex-start; }
+.ex-check { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.ex-custom { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+.ex-custom input { width: 80px; font: inherit; padding: 4px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); }
+.ex-stages { display: flex; flex-wrap: wrap; gap: 6px 14px; padding: 4px 0 4px 22px; }
+.ex-stages[hidden] { display: none; }
+.ex-avail { margin: 14px 0 10px; }
+.ex-history { border-collapse: collapse; font-size: 14px; margin: 6px 0; }
+.ex-history td, .ex-history th { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--border); }
+.ex-bar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 16px; padding: 10px 0; margin-top: 12px; background: var(--bg); border-bottom: 1px solid var(--border); }
+.ex-bar #ex-timer { color: var(--muted); font-variant-numeric: tabular-nums; }
+.ex-bar .btn { margin-left: auto; }
+.ex-group h2 { font-size: 17px; margin: 22px 0 10px; }
+.ex-group h2 .meta { font-weight: 400; margin-left: 4px; }
+.ex-q { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+.ex-q.ok { border-left: 4px solid var(--done); }
+.ex-q.bad { border-left: 4px solid #d1242f; }
+.ex-qt { margin: 0 0 8px; font-weight: 500; }
+.ex-no { display: inline-block; min-width: 22px; color: var(--accent); font-weight: 700; margin-right: 6px; }
+.ex-opts { display: grid; gap: 6px; }
+.ex-opts.ex-judge { grid-template-columns: repeat(2, max-content); gap: 8px 16px; }
+.ex-opt { display: flex; gap: 8px; align-items: baseline; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+.ex-opt:hover { border-color: var(--accent); }
+.ex-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+.ex-essay { width: 100%; box-sizing: border-box; font: inherit; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); color: var(--text); resize: vertical; }
+.ex-foot { margin: 18px 0 30px; }
+.ex-score { display: flex; gap: 20px; align-items: flex-start; }
+.ex-big { font-size: 54px; font-weight: 700; color: var(--accent); line-height: 1; min-width: 100px; }
+.ex-big span { font-size: 18px; margin-left: 2px; }
+.ex-score p { margin: 0 0 8px; }
+.ex-olist { list-style: none; margin: 0 0 8px; padding: 0; }
+.ex-olist li { padding: 3px 8px; border-radius: 4px; }
+.ex-olist li.right { background: var(--done-soft); }
+.ex-olist li.picked:not(.right) { background: rgba(209, 36, 47, 0.1); }
+.ex-ans, .ex-ref { margin: 6px 0; font-size: 14px; }
+.ex-ref { background: var(--chip); padding: 6px 10px; border-radius: 6px; }
+.ex-grade { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+.btn-small.on.ok { border-color: var(--done); background: var(--done-soft); }
+.btn-small.on.bad { border-color: #d1242f; background: rgba(209, 36, 47, 0.1); }
+.ex-src { margin: 6px 0 0; font-size: 13px; }
+@media (max-width: 760px) { .ex-score { flex-direction: column; gap: 8px; } .ex-bar { gap: 10px; font-size: 14px; } }

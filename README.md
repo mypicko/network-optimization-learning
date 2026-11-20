@@ -8,6 +8,8 @@
 - **我的笔记**（`notes.html`）：在正文中选中文字后右键（手机上选中后自动弹出），可以添加或修改释义、写评论、收藏。评论和收藏在原文中高亮；自己的释义会替换术语提示（并保留原释义对照）。数据只存在本浏览器
 - **错题本**（`notes.html#review`）：路径模块的自测题先回忆、再看参考答案并自评；没答对的题和入门快线里答错的选择题自动进错题本，复习答对后移出
 - **站内搜索**（`search.html`）：顶栏搜索框（按 `/` 键聚焦），一次搜模块、讲解小节、自测题、术语、入门快线和我的笔记，结果分组并高亮
+- **工具箱**（`tools.html`）：NR-ARFCN 与频率换算（含国内频段）、参数集与 RB 数、峰值速率估算（含国内常见 TDD 帧结构），公式标注 3GPP 出处；相关模块里有“动手算一算”入口
+- **信令日志解读**：随机接入、注册、PDU 会话、Xn 切换、寻呼与服务请求 5 个模块带示意信令日志，逐条消息可展开看关键字段、解读和规范出处（按规范结构编写，明确标注非实测）
 - **备份**：“我的笔记”页的导出 / 导入备份把学习进度、笔记、错题本打包成一个 JSON 文件，换设备可接着学（兼容旧版只含笔记的备份文件）
 - **5G 移动通信**（已上线）：8 个阶段、30 个模块、约 117 小时
   前置基础 → 5G 全局视图 → NR 空口物理层 → NR 高层协议与接入网 → 5G 核心网 → 端到端业务与信令 → 网络部署与优化 → 演进与前沿
@@ -20,7 +22,7 @@
 python3 -m http.server 8000
 # 打开 http://localhost:8000
 ```
-测试：`python3 -m pytest -q tools/tests`（资源挖掘脚本）和 `node --test tools/tests/p0.test.cjs`（错题本、备份、搜索）。
+测试：`python3 -m pytest -q tools/tests`（资源挖掘脚本）和 `node --test tools/tests/p0.test.cjs tools/tests/calc.test.cjs`（错题本、备份、搜索、计算器）。
 纯静态站点，无需构建，可直接部署到 GitHub Pages。学习进度保存在浏览器 localStorage 中，无需登录。
 
 ## 目录结构
@@ -40,6 +42,10 @@ assets/lesson.js         讲解与课程的共用渲染器（小节编号、配�
 data/figures/5g.js       讲解配图（由 tools/figures/build.mjs 生成）
 notes.html               我的笔记（含错题本、备份）
 search.html              站内搜索
+tools.html               工具箱（计算器）
+assets/calc.js           计算器公式（纯函数）
+assets/calc-page.js      工具箱页面
+data/logs/5g.js          示意信令日志
 assets/review.js         错题本数据（localStorage）
 assets/backup.js         备份导出 / 导入（进度 + 笔记 + 错题本）
 assets/search-index.js   搜索索引与匹配（纯函数）

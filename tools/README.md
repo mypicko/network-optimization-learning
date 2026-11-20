@@ -38,6 +38,18 @@ python tools/bili_fetch.py
 - 标题里没有任何通信术语的视频（比如“PDU”搜到电源插座）不会抓详情
 - Windows 上若终端显示乱码，先执行 `chcp 65001`
 
+## 第 2 步（替代方案）：浏览器模式，不导出 Cookie
+
+如果不想把 Cookie 存成文件，可以在**已登录 B 站的浏览器页面**里抓取：请求由页面直接发出，带着你自己的登录状态，Cookie 不离开浏览器。
+
+1. 打开 bilibili.com 并登录，按 F12 打开 Console，粘贴 `tools/bili_browser.js` 全部内容回车
+2. 搜索：`await BiliMine.search({ "s0-ofdm": ["OFDM 原理", …] })`（词表从 `queries/5g.json` 复制），完成后 `copy(JSON.stringify(BiliMine.dump()))`，粘贴存成 `dump.json`
+3. `python tools/bili_import.py dump.json --pick 15`：合并搜索结果，并打印每个模块要抓详情的 BV 号
+4. 详情：`await BiliMine.details(<上一步打印的 JSON>)`，完成后再 `copy(...)` 存成 `dump.json`，`python tools/bili_import.py dump.json`
+5. 接着做第 3 步打分
+
+页面要保持在前台（后台标签页的定时器会被浏览器大幅降速）。请求间隔同样是 3–6 秒。
+
 ## 第 3 步：打分
 
 ```bash
@@ -91,6 +103,8 @@ python -m unittest discover tools/tests
 | `queries/5g.json` | 每个模块的搜索词，可直接修改 |
 | `bili_client.py` | B 站接口客户端（WBI 签名、慢速请求、Cookie 读取） |
 | `bili_fetch.py` | 抓取候选视频 |
+| `bili_browser.js` | 浏览器模式抓取（在已登录的 B 站页面里运行） |
+| `bili_import.py` | 把浏览器模式的结果合并进 `out/bili/` |
 | `score.py` | 打分，生成审核数据 |
 | `review.html` | 审核页 |
 | `out/` | 抓取的原始数据（不提交到仓库） |

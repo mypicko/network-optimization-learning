@@ -224,6 +224,12 @@
     root.addEventListener("click", (e) => {
       // 点击复选框只切换完成状态，不展开 / 收起模块
       if (e.target.closest(".check")) e.stopPropagation();
+      // 点左侧导航里的模块名：展开该模块再跳过去（收起的 <details> 只跳转不展开）
+      const navMod = e.target.closest("a[data-mod]");
+      if (navMod) {
+        const mod = document.getElementById(navMod.dataset.mod);
+        if (mod && !mod.open) { mod.open = true; renderFlows(mod); }
+      }
     });
     root.addEventListener("change", (e) => {
       const cb = e.target.closest("input[data-mid]");
@@ -258,18 +264,26 @@
     const sub = root.querySelector(`[data-nav-stage="${stage.id}"] .nav-sub`);
     if (!sub) return;
     const lessons = (window.LESSONS || {})[p.id] || {};
+    const isOpen = (m) => { const el = document.getElementById(m.id); return !!(el && el.open); };
+    // 阶段里只要有一个模块展开，就列出该阶段的全部模块（不能只列展开的那个，否则 0.1/0.2 会“消失”）；
+    // 小节目录只挂在展开的模块下面
+    if (!stage.modules.some(isOpen)) {
+      sub.innerHTML = "";
+      sub.hidden = true;
+      observeSections(root);
+      return;
+    }
     const html = stage.modules.map((m, j) => {
-      const el = document.getElementById(m.id);
-      if (!el || !el.open) return "";
       const prefix = `${si}.${j + 1}`;
+      const open = isOpen(m);
       const lesson = lessons[m.id];
-      const secs = lesson && window.Lesson ? window.Lesson.outline(m.id, lesson.sections, prefix) : [];
+      const secs = open && lesson && window.Lesson ? window.Lesson.outline(m.id, lesson.sections, prefix) : [];
       const secHtml = secs.map((it) =>
         `<li><a href="#${it.id}" data-sec="${it.id}"><span class="sec-no">${it.no}</span>${esc(it.h)}</a></li>`).join("");
-      return `<li class="nav-mod"><a href="#${m.id}"><span class="sec-no">${prefix}</span>${esc(m.title)}</a>${secHtml ? `<ol class="nav-sec">${secHtml}</ol>` : ""}</li>`;
+      return `<li class="nav-mod${open ? " open" : ""}"><a href="#${m.id}" data-mod="${m.id}"><span class="sec-no">${prefix}</span>${esc(m.title)}</a>${secHtml ? `<ol class="nav-sec">${secHtml}</ol>` : ""}</li>`;
     }).join("");
     sub.innerHTML = html;
-    sub.hidden = !html;
+    sub.hidden = false;
     observeSections(root);
   }
 

@@ -248,6 +248,8 @@ a.btn:hover { text-decoration: none; }
 .nav-sub .sec-no { flex: none; font-variant-numeric: tabular-nums; color: var(--muted); margin-right: 4px; }
 .nav-sec a.active .sec-no { color: var(--accent); }
 @media (max-width: 760px) { .nav-sub { display: none; } .stage-nav { max-height: none; } }
+/* 宽屏时左侧导航已列出小节目录，正文里的“本节目录”重复，隐藏；手机上导航不显示小节，保留它 */
+@media (min-width: 761px) { .explain-toc { display: none; } }
 
 /* 小节编号 */
 .sec-no { font-variant-numeric: tabular-nums; color: var(--accent); font-weight: 600; }

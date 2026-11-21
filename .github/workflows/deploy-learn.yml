@@ -1,0 +1,62 @@
+# 每次推送 master，把站点同步到国内服务器（learn.promptso.top）；GitHub Pages 照常由仓库设置自动发布
+# 需要仓库 Secret：LEARN_DEPLOY_KEY（部署专用私钥）。服务器端该密钥只能用 rrsync 写 /var/www/learn/site
+name: 部署到国内服务器
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-learn
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  HOST: 82.156.6.167
+  # 服务器 SSH 主机公钥（指纹 SHA256:LxvCvQVGG3mYyyFxE55iuiFGGL0IQzdr317vhLcba4k），防止连到冒充的主机
+  KNOWN_HOST: "82.156.6.167 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMvNnRNWUJc5+TQghKJXb6j0ZxkTIjUz27mz78T3mbYj"
+  SITE: https://learn.promptso.top
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 检查部署密钥
+        id: key
+        env:
+          KEY: ${{ secrets.LEARN_DEPLOY_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            echo "::warning::仓库还没有配置 LEARN_DEPLOY_KEY，跳过国内服务器部署"
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 同步文件
+        if: steps.key.outputs.ok == 'true'
+        env:
+          KEY: ${{ secrets.LEARN_DEPLOY_KEY }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$KNOWN_HOST" > ~/.ssh/known_hosts
+          rsync -rltz --delete --chmod=D755,F644 --exclude-from=.rsync-exclude \
+            -e "ssh -i ~/.ssh/deploy_key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=20" \
+            ./ "learn-deploy@${HOST}:/"
+          rm -f ~/.ssh/deploy_key
+
+      - name: 检查线上页面
+        if: steps.key.outputs.ok == 'true'
+        run: |
+          for p in index.html pathway.html exam.html; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --retry 3 --max-time 20 "$SITE/$p")
+            echo "$p → $code"
+            [ "$code" = 200 ] || exit 1
+          done

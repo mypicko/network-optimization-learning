@@ -30,19 +30,29 @@
 
   // ---------- 设置 ----------
   function defaults() {
-    return { count: 20, types: E.TYPES.map((t) => t.id), scope: "all", stages: [], ...store.get(SETTINGS_KEY, {}) };
+    const saved = { count: 20, types: E.TYPES.map((t) => t.id), scope: "all", stages: [], ...store.get(SETTINGS_KEY, {}) };
+    // 从首页“开始今日复习”进来：只考今天到期的题，题型不限，题数取全部到期题
+    if (new URLSearchParams(location.search).get("scope") === "due" && dueKeys().length) {
+      return { ...saved, scope: "due", types: E.TYPES.map((t) => t.id), count: Math.max(1, dueKeys().length) };
+    }
+    return saved.scope === "due" && !dueKeys().length ? { ...saved, scope: "all" } : saved;
   }
+
+  const inBank = (keys) => keys.filter((k) => bank.some((q) => q.key === k));
+  const dueKeys = () => (R ? inBank(R.due().map((w) => w.key)) : []);
 
   function poolFor(s) {
     const wrongKeys = R ? R.wrong().map((w) => w.key) : [];
-    const opts = { types: s.types, onlyKeys: s.scope === "wrong" ? wrongKeys : null };
+    const only = s.scope === "wrong" ? wrongKeys : s.scope === "due" ? dueKeys() : null;
+    const opts = { types: s.types, onlyKeys: only };
     const pool = E.filterBank(bank, opts);
     return s.scope === "stages" && s.stages.length ? pool.filter((q) => s.stages.includes(stageOf(q))) : pool;
   }
 
   function setupHtml(s) {
     const pool = poolFor(s);
-    const wrongN = R ? R.wrong().filter((w) => bank.some((q) => q.key === w.key)).length : 0;
+    const wrongN = R ? inBank(R.wrong().map((w) => w.key)).length : 0;
+    const dueN = dueKeys().length;
     const typeCount = (t) => bank.filter((q) => q.type === t).length;
     const history = store.get(HISTORY_KEY, []).slice(0, 8);
     return `
@@ -63,6 +73,7 @@
           <label class="ex-check"><input type="radio" name="scope" value="stages"${s.scope === "stages" ? " checked" : ""}> 按阶段选择</label>
           <div class="ex-stages"${s.scope === "stages" ? "" : " hidden"}>${(pathway ? pathway.stages : []).map((st, i) =>
             `<label class="ex-check"><input type="checkbox" data-stage="${st.id}"${s.stages.includes(st.id) ? " checked" : ""}> ${i} ${esc(st.title)}</label>`).join("")}</div>
+          <label class="ex-check"><input type="radio" name="scope" value="due"${s.scope === "due" ? " checked" : ""}${dueN ? "" : " disabled"}> 今天该复习的错题（${dueN} 道，按 1 / 3 / 7 / 14 天间隔安排）</label>
           <label class="ex-check"><input type="radio" name="scope" value="wrong"${s.scope === "wrong" ? " checked" : ""}${wrongN ? "" : " disabled"}> 只考错题本里的题（${wrongN} 道）</label>
         </div>
         <p class="ex-avail">当前条件下可抽 <strong>${pool.length}</strong> 题${pool.length < s.count ? `，将全部抽出（${pool.length} 题）` : `，本次抽 ${s.count} 题`}</p>
@@ -187,7 +198,7 @@
         <div>
           <p>答对 <strong>${s.correct}</strong> / ${s.graded} 题（已判分）${s.pending ? `，还有 <strong>${s.pending}</strong> 道问答题等你自评` : ""} · 用时 ${fmtTime(state.elapsed)}</p>
           <table class="ex-history"><tbody>${s.byType.map((t) => `<tr><td>${t.label}</td><td>${t.correct} / ${t.total}${t.pending ? `<span class="meta">（${t.pending} 道待自评）</span>` : ""}</td></tr>`).join("")}</tbody></table>
-          <p class="meta">答错的题已记入<a href="notes.html#review">错题本</a>；之前在错题本里、这次答对的题已移出。</p>
+          <p class="meta">答错的题已记入<a href="notes.html#review">错题本</a>，明天复习。错题本里到期的题这次答对，推进到下一轮（间隔 3 / 7 / 14 天），连续通过 ${R ? R.ROUNDS : 4} 轮后移出；还没到复习时间的题提前答对，不改变安排。</p>
           <div class="ex-row">
             <button class="btn" data-act="again">按同样设置再考一次</button>
             ${wrong ? `<button class="btn btn-ghost" data-act="retry-wrong">只重做本次错题（${wrong} 道）</button>` : ""}

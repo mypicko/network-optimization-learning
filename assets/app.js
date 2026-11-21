@@ -1,30 +1,11 @@
 // 通信学习路径：渲染与本地进度
 (function () {
-  const STORE_KEY = "pathway-progress-v1";
-
-  // ---------- 本地存储（隐私模式等情况下可能不可用，全部容错） ----------
-  function loadProgress() {
-    try {
-      return JSON.parse(localStorage.getItem(STORE_KEY)) || {};
-    } catch (e) {
-      return {};
-    }
-  }
-  let progress = loadProgress();
-  function saveProgress() {
-    try {
-      localStorage.setItem(STORE_KEY, JSON.stringify(progress));
-    } catch (e) { /* 忽略：进度仅在本次会话内有效 */ }
-  }
-  function isDone(pid, mid) {
-    return !!(progress[pid] && progress[pid][mid]);
-  }
-  function setDone(pid, mid, done) {
-    progress[pid] = progress[pid] || {};
-    if (done) progress[pid][mid] = Date.now();
-    else delete progress[pid][mid];
-    saveProgress();
-  }
+  // ---------- 学习状态：统一由 assets/roadmap.js 的 ModuleStatus 读写（入门快线的“已完成”也走这里） ----------
+  const MS = window.ModuleStatus;
+  const statusOf = (pid, mid) => MS.get(pid, mid);
+  const isDone = (pid, mid) => statusOf(pid, mid) === "done";
+  const setDone = (pid, mid, done) => MS.set(pid, mid, done ? "done" : "todo");
+  const STATE_LABEL = Object.fromEntries(MS.STATES.map((x) => [x.id, x.label]));
 
   // ---------- 工具 ----------
   function esc(s) {
@@ -35,11 +16,12 @@
   function allModules(p) {
     return p.stages.flatMap((s) => s.modules);
   }
+  // done = 已学完（已完成 + 已掌握跳过）
   function stats(p, modules) {
     const mods = modules || allModules(p);
-    const done = mods.filter((m) => isDone(p.id, m.id)).length;
+    const sum = MS.summary(p.id, mods);
     const hours = mods.reduce((a, m) => a + (m.hours || 0), 0);
-    return { done, total: mods.length, hours, pct: mods.length ? Math.round((done / mods.length) * 100) : 0 };
+    return { ...sum, done: sum.finished, hours };
   }
   // "TS 38.211" / "TR 38.913" → 3GPP 官方 FTP 归档目录（含全部版本）
   function specUrl(id) {
@@ -73,6 +55,8 @@
 
   // ---------- 首页 ----------
   function renderHome() {
+    renderReviewCard();
+    window.addEventListener("review-change", renderReviewCard);
     const el = document.getElementById("topics");
     el.innerHTML = window.TOPICS.map((t) => {
       const p = window.PATHWAYS[t.id];
@@ -83,7 +67,7 @@
           <p>${esc(t.desc)}</p>
           <div class="meta">${p.stages.length} 个阶段 · ${s.total} 个模块 · 约 ${s.hours} 小时</div>
           ${bar(s.pct)}
-          <div class="meta">已完成 ${s.done}/${s.total}</div>
+          <div class="meta">已学完 ${s.done}/${s.total}${s.learning ? ` · 学习中 ${s.learning}` : ""}</div>
         </a>`;
       }
       return `<div class="topic-card planned">
@@ -94,8 +78,14 @@
   }
 
   // ---------- 路径页 ----------
+  function statusRow(m) {
+    return `<div class="mod-status" role="group" aria-label="学习状态"><span class="meta">学习状态：</span>${MS.STATES.map((x) =>
+      `<button type="button" class="st-btn" data-set-status="${x.id}" data-mid="${m.id}">${x.label}</button>`).join("")}</div>`;
+  }
+
   function renderModule(p, m, idx) {
-    const done = isDone(p.id, m.id);
+    const st = statusOf(p.id, m.id);
+    const done = st === "done";
     const goals = m.goals.map((g) => `<li>${esc(g)}</li>`).join("");
     // 结构化讲解单独存放在 data/lessons/<主题>/<阶段>.js
     const lesson = ((window.LESSONS || {})[p.id] || {})[m.id];
@@ -121,16 +111,18 @@
         (community ? "" : `<p class="muted">社区资源（B 站、知乎、通信人家园中被反复推荐的视频和文章）筛选中。</p>`)
       : `<p class="muted">待补充：将从通信社区（B 站、知乎、通信人家园）中被反复推荐的资源里精选。</p>`;
 
-    return `<details class="module${done ? " done" : ""}" id="${m.id}" data-note-scope="${m.id}" data-note-title="${esc(idx + " " + m.title)}">
+    return `<details class="module st-${st}" id="${m.id}" data-note-scope="${m.id}" data-note-title="${esc(idx + " " + m.title)}">
       <summary>
         <label class="check" title="标记完成">
           <input type="checkbox" data-mid="${m.id}" ${done ? "checked" : ""}>
         </label>
         <span class="mod-index">${idx}</span>
         <span class="mod-title">${esc(m.title)}</span>
+        <span class="mod-state" data-pill="${m.id}"></span>
         <span class="mod-hours">约 ${m.hours} 小时</span>
       </summary>
       <div class="mod-body">
+        ${statusRow(m)}
         <h4>学完你能</h4><ul class="goals">${goals}</ul>
         ${explain}
         <h4>${explain ? "核心概念回顾" : "核心概念"}</h4><div class="chips">${concepts}</div>
@@ -180,25 +172,41 @@
     const mod = allModules(p).find((m) => m.id === box.dataset.qmod);
     const q = mod && mod.quiz[Number(box.dataset.qi)];
     if (!q) return true;
-    const wasWrong = (window.ReviewStore.get(box.dataset.qkey) || {}).status === "wrong";
+    const prev = window.ReviewStore.get(box.dataset.qkey);
     window.ReviewStore.record({
       key: box.dataset.qkey, q: q.q, a: q.a, title: box.dataset.qtitle,
       page: `pathway.html?t=${p.id}`, scope: box.id
     }, correct);
+    const item = window.ReviewStore.get(box.dataset.qkey);
     const res = box.querySelector(".sq-result");
     res.hidden = false;
-    res.textContent = correct
-      ? (wasWrong ? "答对了，已从错题本移出。" : "答对了。")
-      : "已记入错题本，可以在“我的笔记 → 错题本”里复习。";
+    res.textContent = window.ReviewStore.afterText(prev, item, correct);
     const tag = box.querySelector(".badge-wrong");
-    if (correct && tag) tag.remove();
-    if (!correct && !tag) box.querySelector(".sq-q").insertAdjacentHTML("beforeend", ` <span class="badge badge-wrong">错题本</span>`);
+    const inBook = item && item.status === "wrong";
+    if (!inBook && tag) tag.remove();
+    if (inBook && !tag) box.querySelector(".sq-q").insertAdjacentHTML("beforeend", ` <span class="badge badge-wrong">错题本</span>`);
     return true;
   }
 
   function reviewLink() {
-    const n = window.ReviewStore ? window.ReviewStore.wrong().length : 0;
-    return n ? `<a class="review-link" href="notes.html#review">📒 错题本：${n} 题待复习</a>` : "";
+    const s = window.ReviewStore ? window.ReviewStore.summary() : { due: 0, total: 0 };
+    if (s.due) return `<a class="review-link due" href="notes.html#review">📒 今天该复习 ${s.due} 题</a>`;
+    return s.total ? `<a class="review-link" href="notes.html#review">📒 错题本 ${s.total} 题，下次复习 ${window.ReviewStore.fmtDay(s.next)}</a>` : "";
+  }
+
+  // 首页：今日复习卡片
+  function renderReviewCard() {
+    const el = document.getElementById("review-today");
+    if (!el || !window.ReviewStore) return;
+    const s = window.ReviewStore.summary();
+    if (!s.total) { el.hidden = true; return; }
+    el.hidden = false;
+    const intervals = window.ReviewStore.INTERVALS.join(" / ");
+    el.innerHTML = s.due
+      ? `<div><h2>今天该复习 <strong>${s.due}</strong> 题</h2><p class="meta">错题本共 ${s.total} 题，按 ${intervals} 天的间隔安排复习，连续答对 ${window.ReviewStore.ROUNDS} 轮后移出。每天花 10 分钟，记得更牢。</p></div>
+         <div class="review-actions"><a class="btn" href="exam.html?scope=due">开始今日复习</a><a class="btn btn-ghost" href="notes.html#review">查看错题本</a></div>`
+      : `<div><h2>今天的复习已完成 ✅</h2><p class="meta">错题本还有 ${s.total} 题，下次复习：${window.ReviewStore.fmtDay(s.next)}。</p></div>
+         <div class="review-actions"><a class="btn btn-ghost" href="notes.html#review">查看错题本</a></div>`;
   }
 
   // 示意信令日志：data/logs/<主题>.js，逐条消息可展开看字段解读
@@ -226,6 +234,48 @@
     const links = (m.tools || []).filter((t) => TOOL_NAMES[t])
       .map((t) => `<a href="tools.html#${t}">🧮 ${TOOL_NAMES[t]}</a>`).join("");
     return links ? `<h4>动手算一算</h4><div class="mod-tools">${links}</div>` : "";
+  }
+
+  // ---------- 路线总览：全部阶段与模块一屏看完，点模块设置状态或跳过去 ----------
+  const OVERVIEW_KEY = "pathway-roadmap-open";
+  function overviewHtml(p) {
+    let open = true;
+    try { open = localStorage.getItem(OVERVIEW_KEY) !== "0"; } catch (e) { /* 默认展开 */ }
+    const stages = p.stages.map((s, i) => `<div class="rm-stage">
+        <div class="rm-stage-title"><span class="stage-no">${i}</span><a href="#${s.id}">${esc(s.title)}</a><span class="rm-stat" data-stage="${s.id}"></span></div>
+        <ol>${s.modules.map((m, j) => `<li><button type="button" class="rm-node" data-rm="${m.id}" aria-haspopup="true">
+          <span class="rm-dot" aria-hidden="true"></span><span class="sec-no">${i}.${j + 1}</span><span class="rm-name">${esc(m.title)}</span></button></li>`).join("")}</ol>
+      </div>`).join("");
+    const legend = MS.STATES.map((x) => `<span class="rm-key st-${x.id}"><span class="rm-dot"></span>${x.label} <b data-count="${x.id}">0</b></span>`).join("");
+    return `<details class="roadmap"${open ? " open" : ""}>
+      <summary><h2>路线总览</h2><span class="rm-legend">${legend}</span></summary>
+      <p class="meta rm-tip">阶段按学习顺序排列，后面的阶段默认你已掌握前面的内容。点任一模块可以标记状态或直接跳过去；已经会的模块标“已掌握，跳过”，同样计入进度。</p>
+      <div class="rm-grid">${stages}</div>
+      <div class="rm-menu" role="menu" hidden></div>
+    </details>`;
+  }
+
+  function openRmMenu(root, p, btn) {
+    const menu = root.querySelector(".rm-menu");
+    const mid = btn.dataset.rm;
+    const m = allModules(p).find((x) => x.id === mid);
+    const cur = statusOf(p.id, mid);
+    menu.innerHTML = `<p class="rm-menu-title">${esc(btn.querySelector(".sec-no").textContent)} ${esc(m.title)}</p>
+      ${MS.STATES.map((x) => `<button type="button" role="menuitemradio" aria-checked="${x.id === cur}" class="st-${x.id}${x.id === cur ? " on" : ""}" data-set-status="${x.id}" data-mid="${mid}"><span class="rm-dot"></span>${x.label}</button>`).join("")}
+      <a href="#${mid}" data-mod="${mid}" class="rm-go">打开模块学习 →</a>`;
+    menu.hidden = false;
+    const box = root.querySelector(".roadmap").getBoundingClientRect();
+    const r = btn.getBoundingClientRect();
+    const left = Math.min(r.left - box.left, box.width - 230);
+    menu.style.left = `${Math.max(0, left)}px`;
+    menu.style.top = `${r.bottom - box.top + 4}px`;
+    menu.dataset.for = mid;
+    const first = menu.querySelector("button.on") || menu.querySelector("button");
+    if (first) first.focus();
+  }
+  function closeRmMenu(root) {
+    const menu = root.querySelector(".rm-menu");
+    if (menu && !menu.hidden) { menu.hidden = true; menu.innerHTML = ""; }
   }
 
   function quickBanner(pid) {
@@ -274,6 +324,7 @@
         <span class="review-slot">${reviewLink()}</span>
         ${quickBanner(pid)}
       </section>
+      ${overviewHtml(p)}
       <div class="layout">
         <nav class="stage-nav"><ol>${nav}</ol></nav>
         <div class="stages">${stagesHtml}</div>
@@ -283,19 +334,40 @@
 
     function refresh() {
       const s = stats(p);
+      const parts = [`已学完 ${s.done}/${s.total} 个模块（${s.pct}%）`];
+      if (s.skip) parts.push(`其中跳过 ${s.skip} 个`);
+      if (s.learning) parts.push(`学习中 ${s.learning} 个`);
       root.querySelector(".overall").innerHTML =
-        `${bar(s.pct)}<div class="meta">已完成 ${s.done}/${s.total} 个模块（${s.pct}%）· 全程约 ${s.hours} 小时</div>`;
+        `${bar(s.pct)}<div class="meta">${parts.join(" · ")} · 全程约 ${s.hours} 小时</div>`;
       p.stages.forEach((st) => {
         const ss = stats(p, st.modules);
         root.querySelectorAll(`[data-stage="${st.id}"]`).forEach((el) => {
-          el.innerHTML = el.classList.contains("nav-stat")
+          el.innerHTML = el.classList.contains("nav-stat") || el.classList.contains("rm-stat")
             ? `${ss.done}/${ss.total}`
             : `${bar(ss.pct)}<span class="meta">${ss.done}/${ss.total} · 约 ${ss.hours} 小时</span>`;
         });
       });
+      MS.STATES.forEach((x) => { const c = root.querySelector(`[data-count="${x.id}"]`); if (c) c.textContent = x.id === "done" ? s.finished - s.skip : s[x.id]; });
+      allModules(p).forEach((m) => {
+        const st = statusOf(p.id, m.id);
+        const cls = (el) => { MS.STATES.forEach((x) => el.classList.remove(`st-${x.id}`)); el.classList.add(`st-${st}`); };
+        const mod = document.getElementById(m.id);
+        if (mod) {
+          cls(mod);
+          mod.querySelector("input[data-mid]").checked = st === "done";
+          const pill = mod.querySelector("[data-pill]");
+          pill.textContent = st === "learning" ? "学习中" : st === "skip" ? "已跳过" : "";
+          mod.querySelectorAll(".mod-status [data-set-status]").forEach((b) => {
+            b.classList.toggle("on", b.dataset.setStatus === st);
+            b.setAttribute("aria-pressed", String(b.dataset.setStatus === st));
+          });
+        }
+        const node = root.querySelector(`.rm-node[data-rm="${m.id}"]`);
+        if (node) { cls(node); node.title = STATE_LABEL[st]; }
+      });
       const btn = root.querySelector("#continue");
-      const next = allModules(p).find((m) => !isDone(p.id, m.id));
-      btn.textContent = s.done === 0 ? "开始学习" : next ? "继续学习" : "已全部完成 🎉";
+      const next = s.next;
+      btn.textContent = s.done === 0 && !s.learning ? "开始学习" : next ? `继续学习：${next.title}` : "已全部学完 🎉";
       btn.disabled = !next;
       btn.onclick = () => {
         if (!next) return;
@@ -310,6 +382,21 @@
       // 点击复选框只切换完成状态，不展开 / 收起模块
       if (e.target.closest(".check")) e.stopPropagation();
       if (handleSelfQuiz(e, p)) return;
+      const setBtn = e.target.closest("[data-set-status]");
+      if (setBtn) {
+        MS.set(p.id, setBtn.dataset.mid, setBtn.dataset.setStatus);
+        closeRmMenu(root);
+        return;
+      }
+      const node = e.target.closest(".rm-node");
+      if (node) {
+        const menu = root.querySelector(".rm-menu");
+        if (!menu.hidden && menu.dataset.for === node.dataset.rm) closeRmMenu(root);
+        else openRmMenu(root, p, node);
+        return;
+      }
+      if (!e.target.closest(".rm-menu")) closeRmMenu(root);
+      if (e.target.closest(".rm-go")) closeRmMenu(root);
       // 点左侧导航里的模块名：展开该模块再跳过去（收起的 <details> 只跳转不展开）
       const navMod = e.target.closest("a[data-mod]");
       if (navMod) {
@@ -321,8 +408,12 @@
       const cb = e.target.closest("input[data-mid]");
       if (!cb) return;
       setDone(p.id, cb.dataset.mid, cb.checked);
-      cb.closest(".module").classList.toggle("done", cb.checked);
-      refresh();
+    });
+    window.addEventListener("status-change", refresh);
+    root.addEventListener("keydown", (e) => { if (e.key === "Escape") closeRmMenu(root); });
+    root.querySelector(".roadmap").addEventListener("toggle", (e) => {
+      try { localStorage.setItem(OVERVIEW_KEY, e.target.open ? "1" : "0"); } catch (err) { /* 忽略 */ }
+      if (!e.target.open) closeRmMenu(root);
     });
     root.addEventListener("toggle", (e) => {
       if (!(e.target.classList && e.target.classList.contains("module"))) return;

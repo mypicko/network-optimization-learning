@@ -17,7 +17,7 @@ const W = global.window;
 
 const meta = { key: "5g/s0-ofdm/0", q: "CP 越长越好吗？", a: "不是。", title: "0.1 OFDM", page: "pathway.html?t=5g", scope: "s0-ofdm-q1" };
 
-test("错题本：答错入本、答对移出、计数累加，且不修改旧状态", () => {
+test("错题本：答错入本、到期答对推进一轮、计数累加，且不修改旧状态", () => {
   const s0 = { items: {} };
   const s1 = R.applyRecord(s0, meta, false, "2026-01-01");
   assert.deepEqual(s0, { items: {} });
@@ -26,7 +26,8 @@ test("错题本：答错入本、答对移出、计数累加，且不修改旧�
   const s2 = R.applyRecord(s1, meta, false, "2026-01-02");
   assert.equal(s2.items[meta.key].wrong, 2);
   const s3 = R.applyRecord(s2, meta, true, "2026-01-03");
-  assert.equal(R.listWrong(s3).length, 0);
+  assert.equal(R.listWrong(s3).length, 1, "一次答对不直接移出，进入下一轮复习");
+  assert.equal(s3.items[meta.key].stage, 1);
   assert.equal(s3.items[meta.key].right, 1);
   assert.equal(s1.items[meta.key].status, "wrong");
 });
@@ -103,4 +104,10 @@ test("搜索：高亮会转义 HTML，摘要截取命中位置", () => {
   const sn = S.snippet("a".repeat(100) + "目标词" + "b".repeat(100), "目标词");
   assert.ok(sn.startsWith("…") && sn.includes("目标词") && sn.endsWith("…"));
   assert.equal(S.glossarySlug("5G NR"), "g-5G_20NR");
+});
+
+test("备份：带上模块学习状态，旧备份没有 status 字段时为 null", () => {
+  const text = JSON.stringify(B.buildBackup({ progress: {}, status: { "5g": { a: "skip" } }, notes: {}, review: { items: {} } }, "now"));
+  assert.deepEqual(B.parseBackup(text).status, { "5g": { a: "skip" } });
+  assert.equal(B.parseBackup(JSON.stringify({ app: "pathway-backup", progress: {} })).status, null);
 });

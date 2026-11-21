@@ -56,17 +56,30 @@
     </li>`).join("")}</ul>`;
   }
 
-  function reviewHtml() {
-    const list = Review ? Review.wrong() : [];
-    if (!list.length) return empty("错题本是空的。在模块或入门快线的自测里没答对的题，会自动记到这里。");
-    return `<p class="meta">先自己回忆答案，再展开参考答案核对。复习后答对了，点“已掌握”移出错题本。</p>
-    <ul class="nb-list">${list.map((it) => `<li>
-      <div class="nb-head"><strong>${esc(it.q)}</strong> <span class="badge badge-wrong">答错 ${it.wrong} 次</span>
-        <span class="meta nb-date">${fmt(it.updated)}</span></div>
+  function reviewItem(it, today) {
+    const due = Review.isDue(it, today);
+    const when = due ? `<span class="badge badge-due">今天复习</span>` : `<span class="badge">${esc(Review.fmtDay(it.due))}复习</span>`;
+    return `<li>
+      <div class="nb-head"><strong>${esc(it.q)}</strong> ${when} <span class="badge badge-wrong">答错 ${it.wrong} 次</span>
+        <span class="meta nb-date">第 ${it.stage || 0}/${Review.ROUNDS} 轮</span></div>
       <details class="nb-answer"><summary>参考答案</summary><div class="nb-body">${esc(it.a)}</div></details>
       <div class="nb-foot">${link(it)}</div>
-      <div class="nb-actions"><button data-master-review="${esc(it.key)}">已掌握</button><button class="danger" data-del-review="${esc(it.key)}">删除</button></div>
-    </li>`).join("")}</ul>`;
+      <div class="nb-actions"><button data-master-review="${esc(it.key)}">已掌握，不再复习</button><button class="danger" data-del-review="${esc(it.key)}">删除</button></div>
+    </li>`;
+  }
+
+  function reviewHtml() {
+    const list = Review ? Review.wrong() : [];
+    if (!list.length) return empty("错题本是空的。在模块自测、入门快线或模拟考试里没答对的题，会自动记到这里。");
+    const today = Review.today();
+    const due = Review.due();
+    const later = list.filter((it) => !Review.isDue(it, today)).sort((a, b) => String(a.due).localeCompare(String(b.due)));
+    return `<div class="review-plan">
+        <p><strong>间隔复习：</strong>答错的题 1 天后复习；到期复习答对，依次推后 3 / 7 / 14 天，连续通过 ${Review.ROUNDS} 轮移出错题本；中途答错就从头再来。</p>
+        ${due.length ? `<a class="btn" href="exam.html?scope=due">开始今日复习（${due.length} 题，自动判分）</a>` : `<p class="meta">今天没有到期的题 ✅ 下次复习：${esc(Review.fmtDay(later[0] && later[0].due))}</p>`}
+      </div>
+      ${due.length ? `<h3 class="nb-sub">今天该复习（${due.length}）</h3><ul class="nb-list">${due.map((it) => reviewItem(it, today)).join("")}</ul>` : ""}
+      ${later.length ? `<h3 class="nb-sub">以后复习（${later.length}）</h3><ul class="nb-list">${later.map((it) => reviewItem(it, today)).join("")}</ul>` : ""}`;
   }
 
   const empty = (msg) => `<p class="muted nb-empty">${esc(msg)}</p>`;
@@ -110,7 +123,7 @@
         return;
       }
       const master = t.closest("[data-master-review]");
-      if (master) { Review.master(master.dataset.masterReview); toast("已移出错题本"); }
+      if (master) { Review.master(master.dataset.masterReview); toast("已标记掌握，移出错题本"); }
       const delR = t.closest("[data-del-review]");
       if (delR && confirm("从错题本删除这道题？")) { Review.remove(delR.dataset.delReview); toast("已删除"); }
       const delTerm = t.closest("[data-del-term]");
@@ -128,7 +141,7 @@
       if (file.size > 5 * 1024 * 1024) { toast("文件太大"); return; }
       file.text().then((text) => {
         const r = window.Backup.importText(text);
-        toast(`已导入：完成进度 ${r.progress} 项、释义 ${r.terms} 条、评论 ${r.comments} 条、收藏 ${r.bookmarks} 条、错题 ${r.review} 道`);
+        toast(`已导入：完成进度 ${r.progress} 项、学习状态 ${r.status} 项、释义 ${r.terms} 条、评论 ${r.comments} 条、收藏 ${r.bookmarks} 条、错题 ${r.review} 道`);
         render();
       }).catch((e) => toast("导入失败：" + e.message)).finally(() => { ev.target.value = ""; });
     });

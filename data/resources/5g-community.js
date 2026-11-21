@@ -1,8 +1,29 @@
-// 社区精选资源（由 tools/review.html 导出，请勿手工编辑）
-// 导出时间：2026/11/21 00:22:38
+// 社区精选资源（B 站，浏览器模式挖掘 + 字幕审核后精选，格式同 tools/review.html 导出）
+// 生成时间：2026-11-21 15:21
 window.RESOURCES_COMMUNITY = window.RESOURCES_COMMUNITY || {};
 window.RESOURCES_COMMUNITY["5g"] = {
   "s0-ofdm": [
+    {
+      "type": "video",
+      "title": "8.3.1【OFDM】定性分析（看完这个视频不信你学不会OFDM）",
+      "url": "https://www.bilibili.com/video/BV17N4y1W74w",
+      "meta": "B 站 · 17分钟",
+      "note": "大连理工通信原理课：从多径和符号间干扰讲起，定性讲清 OFDM 为什么有效。"
+    },
+    {
+      "type": "video",
+      "title": "OFDM正交频分复用的含义，技术优缺点、傅里叶变换的作用",
+      "url": "https://www.bilibili.com/video/BV1Db411f7zH",
+      "meta": "B 站 · 6分钟",
+      "note": "6 分钟讲清正交子载波和保护带宽的取舍，评论称“没有一句废话”，适合第一次接触。"
+    },
+    {
+      "type": "video",
+      "title": "OFDM可视化讲解：子载波、循环前缀与5G参数集 - Wireless Explained - 中配",
+      "url": "https://www.bilibili.com/video/BV1m3up6iE1P",
+      "meta": "B 站 · 27分钟 · 2P",
+      "note": "Wireless Explained 中配版：用 3D 可视化从信道、循环前缀一路讲到 5G 参数集，非常直观。"
+    },
     {
       "type": "video",
       "title": "OFDM 实现详解｜子载波、IFFT 与循环前缀是怎么造出来的",
@@ -16,16 +37,23 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV12z411B7y9",
       "meta": "B 站 · 16分钟",
       "note": "“小白也能看懂”系列，12 万播放，评论里常见工作后回来重看；无字幕，未逐句核对。"
-    },
-    {
-      "type": "video",
-      "title": "【射频指标】一次性讲清楚IQ调制、星座图与QAM的关系",
-      "url": "https://www.bilibili.com/video/BV1h7L4zSEbu",
-      "meta": "B 站 · 34分钟",
-      "note": ""
     }
   ],
   "s0-mimo": [
+    {
+      "type": "video",
+      "title": "[小白也能看懂]MIMO技术入门，含码字，层映射，天线端口，预编码，PMI，rank，TM模式，波束赋形，空间复用，空间分集，等内  容",
+      "url": "https://www.bilibili.com/video/BV1fT4y1A71E",
+      "meta": "B 站 · 1小时14分",
+      "note": "74 分钟系统讲码字、层映射、天线端口、预编码、PMI 和 rank，评论称“宝藏”；举例以 LTE 传输模式为主。"
+    },
+    {
+      "type": "video",
+      "title": "空间分集、空间复用与波束赋形，为什么5G采用多天线MIMO技术？",
+      "url": "https://www.bilibili.com/video/BV18h411G7AW",
+      "meta": "B 站 · 8分钟",
+      "note": "8 分钟讲清多天线的三种用法：空间分集、空间复用、波束赋形。"
+    },
     {
       "type": "video",
       "title": "波束赋形beamforming基本的数学原理（一）",
@@ -42,17 +70,10 @@ window.RESOURCES_COMMUNITY["5g"] = {
     },
     {
       "type": "video",
-      "title": "MIMO多层数据传输的简单理解，秩的含义，及预编码和预编码矩阵",
-      "url": "https://www.bilibili.com/video/BV1X5411T77o",
-      "meta": "B 站 · 37分钟",
-      "note": "37 分钟从香农公式讲到多层传输、秩和预编码矩阵；有观众指出约 18:50 处解析传输矩阵一段可能有误。"
-    },
-    {
-      "type": "video",
-      "title": "Cell-Free Massive MIMO 基础 [KTH Emil Björnson]",
-      "url": "https://www.bilibili.com/video/BV1Ji421Y7X7",
-      "meta": "B 站 · 4小时58分 · 6P",
-      "note": ""
+      "title": "什么是波束成形？（“我听过的最好的解释”）",
+      "url": "https://www.bilibili.com/video/BV1rm4y1i72S",
+      "meta": "B 站 · 8分钟",
+      "note": "用给天线单元加延迟的方式直观解释波束形成，评论称“醍醐灌顶”（译制）。"
     }
   ],
   "s2-numerology": [
@@ -65,10 +86,17 @@ window.RESOURCES_COMMUNITY["5g"] = {
     },
     {
       "type": "video",
-      "title": "5G网优培训系列-NR帧结构&空口资源1",
-      "url": "https://www.bilibili.com/video/BV1mf4y147Ma",
-      "meta": "B 站 · 14分钟",
-      "note": ""
+      "title": "5G通信3GPP物理层从零解读协议-帧结构基础",
+      "url": "https://www.bilibili.com/video/BV1Da411k7s4",
+      "meta": "B 站 · 7分钟",
+      "note": "7 分钟对照 TS 38.211 讲帧结构与子载波间隔，评论反馈讲得清楚。"
+    },
+    {
+      "type": "video",
+      "title": "5G NR基本原理",
+      "url": "https://www.bilibili.com/video/BV1SK4y1p7tQ",
+      "meta": "B 站 · 45分钟 · 4P",
+      "note": "IUV 课程：从 4G 帧结构对比讲 5G 的参数集、时隙和子帧。"
     }
   ],
   "s2-ssb": [
@@ -92,6 +120,13 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1i7411Q7QR",
       "meta": "B 站 · 30分钟",
       "note": "对比 LTE 与 5G 的 PSS/SSS 盲检和同步栅格，讲清 5G 为什么要那么多种栅格。"
+    },
+    {
+      "type": "video",
+      "title": "5G协议学习笔记 SSB位置的计算_1",
+      "url": "https://www.bilibili.com/video/BV1724y1r7V3",
+      "meta": "B 站 · 27分钟",
+      "note": "按协议一步步计算 SSB 的 GSCN 位置，可配合本站工具箱的频点换算器一起用。"
     }
   ],
   "s2-beam": [
@@ -108,13 +143,6 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1rm4y1i72S",
       "meta": "B 站 · 8分钟",
       "note": "用给天线单元加延迟的方式直观解释波束形成，评论称“醍醐灌顶”（译制）。"
-    },
-    {
-      "type": "video",
-      "title": "[小白也能看懂]MIMO技术入门，含码字，层映射，天线端口，预编码，PMI，rank，TM模式，波束赋形，空间复用，空间分集，等内  容",
-      "url": "https://www.bilibili.com/video/BV1fT4y1A71E",
-      "meta": "B 站 · 1小时14分",
-      "note": "74 分钟系统讲码字、层映射、天线端口、预编码、PMI 和 rank，评论称“宝藏”；举例以 LTE 传输模式为主。"
     },
     {
       "type": "video",
@@ -175,22 +203,29 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1N8411G7wg",
       "meta": "B 站 · 42分钟",
       "note": "5G 小区选择与重选参数的学习笔记（转载）。"
-    }
-  ],
-  "s4-registration": [
+    },
     {
       "type": "video",
       "title": "5G网络接口及信令流程",
       "url": "https://www.bilibili.com/video/BV1AK4y1Q7BD",
       "meta": "B 站 · 1小时56分 · 8P",
       "note": "IUV 课程：5G 接口协议和关键信令流程（含 NSA 双连接）；有评论指出部分内容讲得不准，如 SRB3。"
-    },
+    }
+  ],
+  "s4-registration": [
     {
       "type": "video",
       "title": "【5G小课堂】5GC典型信令流程 (中国联通)",
       "url": "https://www.bilibili.com/video/BV1e5411b72d",
       "meta": "B 站 · 29分钟",
       "note": "中国联通专家讲 5GC 典型信令流程（注册、会话等）；无字幕，未逐句核对。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络接口及信令流程",
+      "url": "https://www.bilibili.com/video/BV1AK4y1Q7BD",
+      "meta": "B 站 · 1小时56分 · 8P",
+      "note": "IUV 课程：5G 接口协议和关键信令流程（含 NSA 双连接）；有评论指出部分内容讲得不准，如 SRB3。"
     },
     {
       "type": "video",
@@ -210,13 +245,6 @@ window.RESOURCES_COMMUNITY["5g"] = {
     },
     {
       "type": "video",
-      "title": "UPF理论和实践",
-      "url": "https://www.bilibili.com/video/BV1D4411k7bf",
-      "meta": "B 站 · 6小时9分 · 5P",
-      "note": "6 小时 UPF 理论与实践（2019 年），适合想深入用户面和 N4 的人；无字幕，未逐句核对。"
-    },
-    {
-      "type": "video",
       "title": "5G PDU Session establishment call flow 分析，用户5G用户面通道建立，什么是 gNB CUPS",
       "url": "https://www.bilibili.com/video/BV15L411F7SL",
       "meta": "B 站 · 58分钟",
@@ -224,10 +252,10 @@ window.RESOURCES_COMMUNITY["5g"] = {
     },
     {
       "type": "video",
-      "title": "5G协议学习笔记 PDU Session",
-      "url": "https://www.bilibili.com/video/BV1be4y1T7GC",
-      "meta": "B 站 · 37分钟",
-      "note": "PDU Session 建立的协议学习笔记；无字幕，未逐句核对。"
+      "title": "UPF理论和实践",
+      "url": "https://www.bilibili.com/video/BV1D4411k7bf",
+      "meta": "B 站 · 6小时9分 · 5P",
+      "note": "6 小时 UPF 理论与实践（2019 年），适合想深入用户面和 N4 的人；无字幕，未逐句核对。"
     },
     {
       "type": "video",
@@ -240,10 +268,17 @@ window.RESOURCES_COMMUNITY["5g"] = {
   "s6-kpi": [
     {
       "type": "video",
-      "title": "【2025年11月更新】带你入门5G网络优化",
-      "url": "https://www.bilibili.com/video/BV1FZ1sBSEUD",
-      "meta": "B 站 · 4小时17分 · 17P",
-      "note": "网优培训机构的 5G 网络优化入门课（17 集），从理论讲到 KPI 与优化思路。"
+      "title": "说不太清楚的RSRP、RSRQ和SINR",
+      "url": "https://www.bilibili.com/video/BV1je411x7NW",
+      "meta": "B 站 · 25分钟",
+      "note": "辨析 RSRP、RSRQ、SINR 三个指标的定义和区别，评论反馈讲得清楚。"
+    },
+    {
+      "type": "video",
+      "title": "[小白也能看懂]信号质量评估RSRP和sinr，含大尺度衰落和小尺度衰落，路径损耗，多径效应等",
+      "url": "https://www.bilibili.com/video/BV1ca4y1v78n",
+      "meta": "B 站 · 21分钟",
+      "note": "“小白也能看懂”系列：RSRP 和 SINR 的取值与应用，顺带讲路径损耗和多径衰落。"
     },
     {
       "type": "video",
@@ -261,24 +296,10 @@ window.RESOURCES_COMMUNITY["5g"] = {
     },
     {
       "type": "video",
-      "title": "说不太清楚的RSRP、RSRQ和SINR",
-      "url": "https://www.bilibili.com/video/BV1je411x7NW",
-      "meta": "B 站 · 25分钟",
-      "note": "辨析 RSRP、RSRQ、SINR 三个指标的定义和区别，评论反馈讲得清楚。"
-    },
-    {
-      "type": "video",
-      "title": "[小白也能看懂]信号质量评估RSRP和sinr，含大尺度衰落和小尺度衰落，路径损耗，多径效应等",
-      "url": "https://www.bilibili.com/video/BV1ca4y1v78n",
-      "meta": "B 站 · 21分钟",
-      "note": "“小白也能看懂”系列：RSRP 和 SINR 的取值与应用，顺带讲路径损耗和多径衰落。"
-    },
-    {
-      "type": "video",
-      "title": "5G NR基本原理",
-      "url": "https://www.bilibili.com/video/BV1SK4y1p7tQ",
-      "meta": "B 站 · 45分钟 · 4P",
-      "note": "IUV 课程：从 4G 帧结构对比讲 5G 的参数集、时隙和子帧。"
+      "title": "【2025年11月更新】带你入门5G网络优化",
+      "url": "https://www.bilibili.com/video/BV1FZ1sBSEUD",
+      "meta": "B 站 · 4小时17分 · 17P",
+      "note": "网优培训机构的 5G 网络优化入门课（17 集），从理论讲到 KPI 与优化思路。"
     }
   ]
 };

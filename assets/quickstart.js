@@ -83,7 +83,7 @@
       root.innerHTML = `<section class="hero"><h1>该主题的入门快线还在建设中</h1><p><a href="index.html">返回主题列表</a></p></section>`;
       return;
     }
-    document.title = q.title + " · 通信学习路径";
+    document.title = q.title + " · 通途";
     const mods = moduleIndex((window.PATHWAYS || {})[q.pathway]);
     const totalMin = q.lessons.reduce((a, l) => a + l.minutes, 0);
 

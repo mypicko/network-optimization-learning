@@ -1,4 +1,4 @@
-// 通信学习路径：渲染与本地进度
+// 通途：渲染与本地进度
 (function () {
   // ---------- 学习状态：统一由 assets/roadmap.js 的 ModuleStatus 读写（入门快线的“已完成”也走这里） ----------
   const MS = window.ModuleStatus;
@@ -294,7 +294,7 @@
       root.innerHTML = `<section class="hero"><h1>该主题还在建设中</h1><p><a href="index.html">返回主题列表</a></p></section>`;
       return;
     }
-    document.title = p.title + " · 学习路径";
+    document.title = p.title + " · 通途";
 
     const nav = p.stages.map((s, i) =>
       `<li class="nav-stage" data-nav-stage="${s.id}">

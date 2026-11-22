@@ -1,0 +1,8 @@
+# learn.promptso.top
+User-agent: *
+Allow: /
+# Search results and personal notes differ per visitor; no need to index them
+Disallow: /search.html
+Disallow: /notes.html
+
+Sitemap: https://learn.promptso.top/sitemap.xml

@@ -2,7 +2,7 @@
 
 面向国内移动通信从业者的系统化学习网站：不堆碎片知识和新闻，每个主题是一条分阶段的学习路径。
 
-访问地址：国内 <https://learn.promptso.top> · 海外备用 <https://mypicko.github.io/network-optimization-learning/>（部署方式见 [国内服务器部署.md](国内服务器部署.md)）
+访问地址：国内 <https://learn.promptso.top> · 海外备用 <https://mypicko.github.io/network-optimization-learning/>（部署、访问统计、搜索引擎收录见 [国内服务器部署.md](国内服务器部署.md)）
 
 ## 当前内容
 - **5G 入门快线**（`quickstart.html?t=5g`）：9 节课、约 11 小时，面向零基础和转岗读者。每课有中文讲解、动手练习（不需要现网数据）和即时判分的自测，最后一课按岗位推荐完整路径中的模块

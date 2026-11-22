@@ -58,7 +58,9 @@ code { background: var(--code); padding: 1px 6px; border-radius: 4px; font-size:
 .site-header .wrap { display: flex; align-items: baseline; gap: 12px; padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap; }
 .brand { font-weight: 700; font-size: 18px; color: var(--text); }
 .tagline { color: var(--muted); font-size: 14px; }
-.site-footer { color: var(--muted); font-size: 13px; padding-top: 32px; padding-bottom: 32px; }
+.site-footer { color: var(--muted); font-size: 13px; padding-top: 32px; padding-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; }
+.site-footer .icp a { color: var(--muted); text-decoration: none; }
+.site-footer .icp a:hover { color: var(--accent); text-decoration: underline; }
 
 .hero { padding: 36px 0 20px; }
 .hero h1 { margin: 0 0 8px; font-size: 30px; line-height: 1.3; }

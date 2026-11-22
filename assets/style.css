@@ -37,6 +37,8 @@
 }
 
 * { box-sizing: border-box; }
+/* hidden 属性一律生效，避免被组件自己的 display: flex / grid 覆盖 */
+[hidden] { display: none !important; }
 html { scroll-behavior: smooth; }
 body {
   margin: 0;
@@ -547,6 +549,7 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
   background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--learning);
   border-radius: var(--radius); padding: 14px 18px; margin: 0 0 24px;
 }
+.review-today[hidden] { display: none; }
 .review-today h2 { margin: 0; font-size: 18px; }
 .review-today h2 strong { color: var(--learning); font-size: 22px; }
 .review-today p { margin: 4px 0 0; }
@@ -561,3 +564,15 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
   .roadmap { padding: 4px 10px 10px; }
 }
 @media (max-width: 480px) { .rm-grid { grid-template-columns: 1fr; } }
+
+/* ---------- 备用地址提示（只在 GitHub Pages 上显示） ---------- */
+.mirror-notice { background: var(--accent-soft); border-bottom: 1px solid var(--border); font-size: 14px; }
+.mirror-notice .wrap { display: flex; align-items: flex-start; gap: 12px; padding-top: 8px; padding-bottom: 8px; }
+.mirror-notice .wrap > span { flex: 1; }
+.mirror-tip { color: var(--muted); margin-left: 4px; }
+.mirror-close {
+  flex: none; font: inherit; font-size: 18px; line-height: 1; padding: 2px 8px; border: 0; border-radius: 6px;
+  background: none; color: var(--muted); cursor: pointer;
+}
+.mirror-close:hover { background: var(--chip); color: var(--text); }
+@media (max-width: 760px) { .mirror-tip { display: block; margin: 2px 0 0; } }

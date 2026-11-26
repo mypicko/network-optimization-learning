@@ -12,7 +12,8 @@ const S = require(path.join(root, "assets/search-index.js"));
 // 加载站点真实数据（数据文件写到 window 上）
 global.window = {};
 ["data/pathways/5g.js", "data/glossary.js", "data/quickstart/5g.js",
-  ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `data/lessons/5g/s${i}.js`)].forEach((f) => require(path.join(root, f)));
+  ...[0, 1, 2, 3, 4, 5, 6, 7].map((i) => `data/lessons/5g/s${i}.js`),
+  ...["planning", "optimization", "ai"].map((n) => `data/lessons/5g/${n}.js`)].forEach((f) => require(path.join(root, f)));
 const W = global.window;
 
 const meta = { key: "5g/s0-ofdm/0", q: "CP 越长越好吗？", a: "不是。", title: "0.1 OFDM", page: "pathway.html?t=5g", scope: "s0-ofdm-q1" };
@@ -71,13 +72,17 @@ test("备份：解析新格式、兼容旧笔记格式、拒绝其他文件", ()
 
 const docs = S.buildIndex({ pathways: W.PATHWAYS, lessons: W.LESSONS, glossary: W.GLOSSARY, quickstart: W.QUICKSTART, notes: null });
 
-test("搜索：索引覆盖全部 30 个模块、全部自测题和术语", () => {
+test("搜索：索引覆盖全部模块、全部自测题和术语", () => {
   const n = (t) => docs.filter((d) => d.type === t).length;
-  assert.equal(n("module"), 30);
+  const modules = W.PATHWAYS["5g"].stages.flatMap((s) => s.modules);
+  assert.equal(n("module"), modules.length);
+  assert.ok(modules.length >= 39);
   const quizCount = W.PATHWAYS["5g"].stages.flatMap((s) => s.modules).reduce((a, m) => a + (m.quiz || []).length, 0);
   assert.equal(n("quiz"), quizCount);
   assert.equal(n("term"), W.GLOSSARY.length);
   assert.ok(n("section") > 100);
+  // 每个模块都有知识讲解
+  modules.forEach((m) => assert.ok(W.LESSONS["5g"][m.id], `${m.id} 缺少知识讲解`));
 });
 
 test("搜索：术语精确命中排第一，小节锚点与 lesson.js 的规则一致", () => {

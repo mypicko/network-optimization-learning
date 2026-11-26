@@ -129,6 +129,7 @@
         ${specs ? `<h4>规范出处</h4><ul class="specs">${specs}</ul>` : ""}
         ${flow}
         ${sigLogHtml(p, m)}
+        ${window.CaseLib ? window.CaseLib.moduleLinks(p.id, m.id) : ""}
         ${quiz ? `<h4>自测</h4>${quiz}` : ""}
         ${m.practice ? `<h4>实操任务</h4><p class="practice">${esc(m.practice)}</p>` : ""}
         ${toolsHtml(m)}
@@ -229,12 +230,15 @@
   }
 
   // 工具箱里与本模块相关的计算器
-  const TOOL_NAMES = { arfcn: "NR-ARFCN 与频率换算", numerology: "参数集与 RB 数", rate: "峰值速率估算" };
+  const TOOL_NAMES = { arfcn: "NR-ARFCN 与频率换算", numerology: "参数集与 RB 数", rate: "峰值速率估算", budget: "链路预算与覆盖半径", report: "测量上报值换算", kpi: "KPI 计算", pci: "PCI 规划核查" };
   function toolsHtml(m) {
     const links = (m.tools || []).filter((t) => TOOL_NAMES[t])
       .map((t) => `<a href="tools.html#${t}">🧮 ${TOOL_NAMES[t]}</a>`).join("");
     return links ? `<h4>动手算一算</h4><div class="mod-tools">${links}</div>` : "";
   }
+
+  // 选学方向（如“网优方向”）的阶段标签
+  const trackBadge = (s) => (s.track ? ` <span class="badge badge-track">${esc(s.track)} · 选学</span>` : "");
 
   // ---------- 路线总览：全部阶段与模块一屏看完，点模块设置状态或跳过去 ----------
   const OVERVIEW_KEY = "pathway-roadmap-open";
@@ -242,7 +246,7 @@
     let open = true;
     try { open = localStorage.getItem(OVERVIEW_KEY) !== "0"; } catch (e) { /* 默认展开 */ }
     const stages = p.stages.map((s, i) => `<div class="rm-stage">
-        <div class="rm-stage-title"><span class="stage-no">${i}</span><a href="#${s.id}">${esc(s.title)}</a><span class="rm-stat" data-stage="${s.id}"></span></div>
+        <div class="rm-stage-title"><span class="stage-no">${i}</span><a href="#${s.id}">${esc(s.title)}</a>${trackBadge(s)}<span class="rm-stat" data-stage="${s.id}"></span></div>
         <ol>${s.modules.map((m, j) => `<li><button type="button" class="rm-node" data-rm="${m.id}" aria-haspopup="true">
           <span class="rm-dot" aria-hidden="true"></span><span class="sec-no">${i}.${j + 1}</span><span class="rm-name">${esc(m.title)}</span></button></li>`).join("")}</ol>
       </div>`).join("");
@@ -306,7 +310,7 @@
       return `<section class="stage" id="${s.id}">
         <div class="stage-head">
           <span class="stage-no big">${i}</span>
-          <div><h2>${esc(s.title)}</h2><p>${esc(s.summary)}</p></div>
+          <div><h2>${esc(s.title)}${trackBadge(s)}</h2><p>${esc(s.summary)}${s.track ? `<span class="meta">（${esc(s.track)}内容，只想学协议原理可以先跳过，在路线总览里标“已掌握，跳过”）</span>` : ""}</p></div>
         </div>
         <div class="stage-progress" data-stage="${s.id}"></div>
         ${mods}

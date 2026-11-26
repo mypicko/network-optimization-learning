@@ -1,5 +1,5 @@
 // 社区精选资源（B 站，浏览器模式挖掘 + 字幕审核后精选，格式同 tools/review.html 导出）
-// 生成时间：2026-11-21 15:21
+// 生成时间：2026-11-21（10 个模块）；2026-11-23 补充 20 个模块，同样经字幕审核后精选
 window.RESOURCES_COMMUNITY = window.RESOURCES_COMMUNITY || {};
 window.RESOURCES_COMMUNITY["5g"] = {
   "s0-ofdm": [
@@ -76,6 +76,91 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "用给天线单元加延迟的方式直观解释波束形成，评论称“醍醐灌顶”（译制）。"
     }
   ],
+  "s0-lte": [
+    {
+      "type": "video",
+      "title": "【小白也能看懂】LTE核心网网元",
+      "url": "https://www.bilibili.com/video/BV1FY411w7gS",
+      "meta": "B 站 · 1小时1分钟",
+      "note": "从 2G/3G 核心网讲到 EPC，把 MME、SGW、PGW、HSS 各自干什么讲得很直白，评论有人靠这个系列过了通信面试。"
+    },
+    {
+      "type": "video",
+      "title": "LTE空中接口技术基础",
+      "url": "https://www.bilibili.com/video/BV1BY411U7WD",
+      "meta": "B 站 · 5小时49分钟 · 15P",
+      "note": "15 节的 LTE 空口系统课：协议结构、物理信道和参考信号逐一展开，适合回顾 LTE 时细看。"
+    },
+    {
+      "type": "video",
+      "title": "LTE基础概述",
+      "url": "https://www.bilibili.com/video/BV1ug4y1a7Uz",
+      "meta": "B 站 · 3小时22分钟 · 20P",
+      "note": "20 集 LTE 基础概述，每集十分钟左右，适合快速过一遍 4G 体系。"
+    }
+  ],
+  "s1-scenarios": [
+    {
+      "type": "video",
+      "title": "5G零基础入门",
+      "url": "https://www.bilibili.com/video/BV1uT4y1d7iP",
+      "meta": "B 站 · 2小时30分钟 · 3P",
+      "note": "鲜枣课堂的 5G 入门讲座，从 ICT 讲到 5G 场景与关键技术，收藏率很高，适合零基础第一课。"
+    },
+    {
+      "type": "video",
+      "title": "第五代行动电话5G系统大揭秘-eMBB、uRLLC跟mMTC到底在讲什么",
+      "url": "https://www.bilibili.com/video/BV1G5411N7MD",
+      "meta": "B 站 · 9分钟",
+      "note": "8 分钟讲清 eMBB、URLLC、mMTC 分别对应什么需求和技术手段，顺带介绍 3GPP。"
+    }
+  ],
+  "s1-releases": [
+    {
+      "type": "video",
+      "title": "3GPP的5G协议怎么去看？",
+      "url": "https://www.bilibili.com/video/BV1Aq4y1B79X",
+      "meta": "B 站 · 10分钟",
+      "note": "10 分钟讲协议去哪下载、先看哪几本、怎么配合书读，第一次打开 38 系列规范前值得看。"
+    },
+    {
+      "type": "video",
+      "title": "跟我一起学5G (2)：3GPP协议规范那点事儿（2023新版）",
+      "url": "https://www.bilibili.com/video/BV1994y1s74p",
+      "meta": "B 站 · 52分钟",
+      "note": "系统梳理 3GPP 组织、协议制定流程、版本演进和命名规则（2023 新版），是读规范的“地图”。"
+    },
+    {
+      "type": "video",
+      "title": "3GPP 提案的查找",
+      "url": "https://www.bilibili.com/video/BV11u4y1c7PP",
+      "meta": "B 站 · 11分钟",
+      "note": "教你在 3GPP 网站查提案：规范只写“怎么做”，想知道“为什么这样设计”就要看提案。"
+    }
+  ],
+  "s1-deploy": [
+    {
+      "type": "video",
+      "title": "【小白向】5G基础知识-带宽，频段，NSA，SA，EMBB，双工，应用等",
+      "url": "https://www.bilibili.com/video/BV1ni4y147Pn",
+      "meta": "B 站 · 25分钟",
+      "note": "面向小白串讲 5G 频段、带宽、双工方式和 NSA / SA 组网，25 分钟建立整体印象。"
+    },
+    {
+      "type": "video",
+      "title": "5G NSA EN-DC接入过程信令流程详细介绍",
+      "url": "https://www.bilibili.com/video/BV1FE411s72K",
+      "meta": "B 站 · 39分钟",
+      "note": "逐条讲解 NSA EN-DC 下添加 5G 辅节点的信令流程，评论称工作中很实用。"
+    },
+    {
+      "type": "video",
+      "title": "第1课-5G_SA网络架构",
+      "url": "https://www.bilibili.com/video/BV1RD42177at",
+      "meta": "B 站 · 2小时7分钟",
+      "note": "一线网优讲师的直播课：从网优视角讲 SA 端到端网络架构，强调不能只盯着无线侧。"
+    }
+  ],
   "s2-numerology": [
     {
       "type": "video",
@@ -129,6 +214,45 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "按协议一步步计算 SSB 的 GSCN 位置，可配合本站工具箱的频点换算器一起用。"
     }
   ],
+  "s2-channels": [
+    {
+      "type": "video",
+      "title": "5G物理信道和信号1",
+      "url": "https://www.bilibili.com/video/BV1wT4y1b7To",
+      "meta": "B 站 · 25分钟",
+      "note": "从协议栈讲起，理清逻辑信道、传输信道、物理信道的分工和映射关系。"
+    },
+    {
+      "type": "video",
+      "title": "5G课程学习笔记 PDCCH (1)",
+      "url": "https://www.bilibili.com/video/BV1Vx4y157iD",
+      "meta": "B 站 · 1小时10分钟",
+      "note": "详细拆解 PDCCH 的处理流程：DCI 加 CRC、RNTI 加扰、编码到 CCE 映射，材料准备很扎实。"
+    }
+  ],
+  "s2-coding": [
+    {
+      "type": "video",
+      "title": "5G LDPC编码 | LDPC编码基础 + 完整实现步骤理论讲解",
+      "url": "https://www.bilibili.com/video/BV1trW86FE4k",
+      "meta": "B 站 · 1小时14分钟 · 3P",
+      "note": "按 TS 38.212 讲 LDPC 编码原理和完整实现步骤，还涉及 NTN，适合想深入编码细节的读者。"
+    },
+    {
+      "type": "video",
+      "title": "5G课程学习笔记 HARQ （混合自动重传）",
+      "url": "https://www.bilibili.com/video/BV17X4y1D7q8",
+      "meta": "B 站 · 2小时45分钟",
+      "note": "近 3 小时细讲 5G HARQ：进程、异步重传、反馈时序和码本，评论有现网工程师补充实际配置。"
+    },
+    {
+      "type": "video",
+      "title": "【小白也能看懂】5G参数CQI与MCS\\TBS 深度解读-(上)",
+      "url": "https://www.bilibili.com/video/BV1684y1B7pU",
+      "meta": "B 站 · 45分钟",
+      "note": "讲清 CQI、MCS、TBS 三者关系和计算过程，网优日常最常看的几个参数背后的原理。"
+    }
+  ],
   "s2-beam": [
     {
       "type": "video",
@@ -157,6 +281,45 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1tv4y1B7uN",
       "meta": "B 站 · 25分钟",
       "note": "讲预编码矩阵如何对应数据层数、CSI-RS 端口和 PMI，衔接 Massive MIMO。"
+    }
+  ],
+  "s3-stack": [
+    {
+      "type": "video",
+      "title": "5G网络接口及信令流程",
+      "url": "https://www.bilibili.com/video/BV1AK4y1Q7BD",
+      "meta": "B 站 · 1小时57分钟 · 8P",
+      "note": "IUV 的 5G 接口与信令课：八大网元、接口协议栈和双连接信令流程，收藏两千多。"
+    },
+    {
+      "type": "video",
+      "title": "NR的MAC层协议栈介绍",
+      "url": "https://www.bilibili.com/video/BV1Li4y1571u",
+      "meta": "B 站 · 1小时22分钟",
+      "note": "NR MAC 层专题直播（9 分钟处正式开始）：调度、HARQ、逻辑信道复用等功能逐一讲解。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络接口协议栈",
+      "url": "https://www.bilibili.com/video/BV18EASeREst",
+      "meta": "B 站 · 45分钟",
+      "note": "5G 接入网协议栈与高层信令的系统讲解，用户面和控制面各层功能梳理清楚。"
+    }
+  ],
+  "s3-rrc": [
+    {
+      "type": "video",
+      "title": "【小白系列】5G的RRC3种状态（上）涉及：RRC inactive，SRB，DRB，SDT，RNA，AS上下文等。",
+      "url": "https://www.bilibili.com/video/BV1Bg4y1k763",
+      "meta": "B 站 · 59分钟",
+      "note": "把 RRC 三种状态展开讲透，顺带讲 SRB / DRB、RNA、AS 上下文和 SDT，评论称比公司培训还细。"
+    },
+    {
+      "type": "video",
+      "title": "通过信令学通信之5G RRC建立",
+      "url": "https://www.bilibili.com/video/BV1Ta411b7P2",
+      "meta": "B 站 · 11分钟",
+      "note": "10 分钟对着 TS 38.331 看 RRC 建立的三条消息和关键字段，适合配合信令日志学习。"
     }
   ],
   "s3-access": [
@@ -212,6 +375,45 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "IUV 课程：5G 接口协议和关键信令流程（含 NSA 双连接）；有评论指出部分内容讲得不准，如 SRB3。"
     }
   ],
+  "s3-ran-arch": [
+    {
+      "type": "video",
+      "title": "跟我一起学5G (5)：5G基站的CU-DU分离架构（兼谈O-RAN）",
+      "url": "https://www.bilibili.com/video/BV1oL4y1K7WD",
+      "meta": "B 站 · 16分钟",
+      "note": "16 分钟讲清 CU / DU 分离的动机、切分方案和接口，并延伸到 O-RAN。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络架构与组网部署01",
+      "url": "https://www.bilibili.com/video/BV1gx4y1T78E",
+      "meta": "B 站 · 36分钟",
+      "note": "5G 网络架构与组网部署课程第一讲，接入网和核心网网元功能讲解清晰，适合入门。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络架构及演进概述",
+      "url": "https://www.bilibili.com/video/BV1UQNdeVECG",
+      "meta": "B 站 · 33分钟",
+      "note": "5G 架构演进与接入网组网部署概述，覆盖组网方案和应用场景。"
+    }
+  ],
+  "s4-sba": [
+    {
+      "type": "video",
+      "title": "5G--核心网架构和网络功能",
+      "url": "https://www.bilibili.com/video/BV14f4y1U7YC",
+      "meta": "B 站 · 1小时6分钟",
+      "note": "一小时讲 5G 核心网架构与各网络功能，从 2G 到 5G 的演进讲起，收藏一千多。"
+    },
+    {
+      "type": "video",
+      "title": "5G基础知识介绍第4节第一部分_\"5G核心网架构\"",
+      "url": "https://www.bilibili.com/video/BV1Eb411E7Pr",
+      "meta": "B 站 · 52分钟",
+      "note": "从三大场景对网络的不同需求出发，解释 5GC 为什么要服务化，再讲各网元（21 分钟处进入架构）。"
+    }
+  ],
   "s4-registration": [
     {
       "type": "video",
@@ -265,6 +467,116 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "7 分钟看一条真实的 PDU Session 建立请求信令；无字幕，未逐句核对。"
     }
   ],
+  "s4-qos": [
+    {
+      "type": "video",
+      "title": "5G无线信令流程5QOS",
+      "url": "https://www.bilibili.com/video/BV1na4y1874X",
+      "meta": "B 站 · 20分钟",
+      "note": "用 4G 的 EPS 承载类比，讲清 QoS 流和 PDU 会话的关系，以及 QoS 流怎么建立。"
+    },
+    {
+      "type": "video",
+      "title": "5.5G QoS",
+      "url": "https://www.bilibili.com/video/BV1te411573K",
+      "meta": "B 站 · 36分钟",
+      "note": "对比 4G 和 5G QoS 模型：QoS 流与 DRB 多对一映射、GBR 与非 GBR、5QI 等参数。"
+    }
+  ],
+  "s4-slicing": [
+    {
+      "type": "video",
+      "title": "5G基础知识介绍第5节第四部分_\"Network Slicing网络切片\"",
+      "url": "https://www.bilibili.com/video/BV1jt411j7PK",
+      "meta": "B 站 · 43分钟",
+      "note": "42 分钟系统讲解网络切片的概念、标识和端到端实现，评论称切片部分讲得好。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络切片到底是什么呢？",
+      "url": "https://www.bilibili.com/video/BV1kS4y1D7C6",
+      "meta": "B 站 · 3分钟",
+      "note": "鲜枣课堂 3 分钟动画讲网络切片是什么，适合先建立直观印象。"
+    },
+    {
+      "type": "video",
+      "title": "硬核知识: 5G网络切片到底是什么？",
+      "url": "https://www.bilibili.com/video/BV15y4y1q7wQ",
+      "meta": "B 站 · 5分钟",
+      "note": "芯片厂商视角的 5 分钟访谈：终端如何参与切片、选择合适的网络配置。"
+    }
+  ],
+  "s4-security": [
+    {
+      "type": "video",
+      "title": "5G认证和安全性-part1总体介绍",
+      "url": "https://www.bilibili.com/video/BV1wQ4y1i7Rf",
+      "meta": "B 站 · 35分钟",
+      "note": "从工程排障的角度讲 5G 认证与安全的总体流程，适合理解为什么要懂鉴权。"
+    },
+    {
+      "type": "video",
+      "title": "5G接入和注册过程中的UE_ID分析——RNTI、RandomValue、GUTI、s-TMSI、IMSI、SUPI、SUCI的作用和使用场景",
+      "url": "https://www.bilibili.com/video/BV13v41137JQ",
+      "meta": "B 站 · 42分钟",
+      "note": "把接入和注册中出现的 RNTI、5G-GUTI、5G-S-TMSI、SUPI、SUCI 等标识的作用和使用场景一次理清。"
+    }
+  ],
+  "s5-e2e": [
+    {
+      "type": "video",
+      "title": "3. 5G SA系统信令流程",
+      "url": "https://www.bilibili.com/video/BV1Jb4y1y7WV",
+      "meta": "B 站 · 1小时30分钟",
+      "note": "SA 组网信令流程系统课：开机入网、上下文管理、PDU 会话管理和切换，收藏率高。"
+    },
+    {
+      "type": "video",
+      "title": "【5G小课堂】5GC典型信令流程 (中国联通)",
+      "url": "https://www.bilibili.com/video/BV1e5411b72d",
+      "meta": "B 站 · 30分钟",
+      "note": "运营商的 5GC 典型信令流程讲解，注册、会话建立、业务请求等流程图清晰。"
+    },
+    {
+      "type": "video",
+      "title": "03 5G信令分析",
+      "url": "https://www.bilibili.com/video/BV1se4y187yW",
+      "meta": "B 站 · 1小时41分钟",
+      "note": "近两小时的 5G 信令分析课，从 RRC 状态讲到寻呼和连接管理，讲师讲解生动。"
+    }
+  ],
+  "s5-paging": [
+    {
+      "type": "video",
+      "title": "5G寻呼过程",
+      "url": "https://www.bilibili.com/video/BV1MWASeHEh6",
+      "meta": "B 站 · 27分钟",
+      "note": "专讲 5G 寻呼：5GC 寻呼和 RAN 寻呼的机制、跟踪区列表和寻呼流程。"
+    }
+  ],
+  "s5-voice": [
+    {
+      "type": "video",
+      "title": "第6课-5G_VONR",
+      "url": "https://www.bilibili.com/video/BV1FZ421Y75D",
+      "meta": "B 站 · 2小时13分钟",
+      "note": "网优讲师的 5G 语音专题直播：EPS Fallback 和 VoNR 方案对比，以及运营商为什么重视语音优化。"
+    },
+    {
+      "type": "video",
+      "title": "VoNR和VoLTE相比，信令流程和参数有哪些变化？",
+      "url": "https://www.bilibili.com/video/BV1Uc411b77U",
+      "meta": "B 站 · 14分钟",
+      "note": "13 分钟对比 VoNR 与 VoLTE 在信令流程和参数上的异同，适合已了解 VoLTE 的读者。"
+    },
+    {
+      "type": "video",
+      "title": "通过信令学通信之 VoNR概述",
+      "url": "https://www.bilibili.com/video/BV1QB4y1W79h",
+      "meta": "B 站 · 9分钟",
+      "note": "从空口信令看 VoNR 主叫、被叫流程，教你在日志里区分主被叫。"
+    }
+  ],
   "s6-kpi": [
     {
       "type": "video",
@@ -300,6 +612,98 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1FZ1sBSEUD",
       "meta": "B 站 · 4小时17分 · 17P",
       "note": "网优培训机构的 5G 网络优化入门课（17 集），从理论讲到 KPI 与优化思路。"
+    }
+  ],
+  "s6-coverage": [
+    {
+      "type": "video",
+      "title": "【2025年11月更新】带你入门5G网络优化",
+      "url": "https://www.bilibili.com/video/BV1FZ1sBSEUD",
+      "meta": "B 站 · 4小时18分钟 · 17P",
+      "note": "培训机构的 5G 网优入门课（2025 年更新），系统讲网优理论基础，适合转岗入行。"
+    },
+    {
+      "type": "video",
+      "title": "实验工坊WEB版-5G网络优化技术-弱覆盖案例",
+      "url": "https://www.bilibili.com/video/BV1ng411v7M1",
+      "meta": "B 站 · 26分钟",
+      "note": "在仿真平台上演示弱覆盖问题的识别和处理过程，可以对照讲解动手理解。"
+    },
+    {
+      "type": "video",
+      "title": "实验工坊WEB版-5G网络优化技术-5G同频干扰案例",
+      "url": "https://www.bilibili.com/video/BV1yD4y1s7ue",
+      "meta": "B 站 · 9分钟",
+      "note": "9 分钟演示同频干扰案例，讲 SSB 波束扫描与 PCI 的关系如何影响小区交界处干扰。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络优化-覆盖优化",
+      "url": "https://www.bilibili.com/video/BV1fXMB6fEKc",
+      "meta": "B 站 · 55分钟",
+      "note": "用竞赛仿真平台完整演示路测与覆盖优化过程，适合准备通信类竞赛的同学。"
+    }
+  ],
+  "s6-troubleshoot": [
+    {
+      "type": "video",
+      "title": "5G-NR网优原理视频培训",
+      "url": "https://www.bilibili.com/video/BV16T41197u6",
+      "meta": "B 站 · 31小时5分钟 · 59P",
+      "note": "约 30 小时的 5G 网优原理系列培训，从频谱、组网、信道讲到信令流程，评论称讲师“天花板”，适合按需挑章节看。"
+    }
+  ],
+  "s7-r16-r17": [
+    {
+      "type": "video",
+      "title": "详细解读5G R17标准",
+      "url": "https://www.bilibili.com/video/BV15Y4y1n7HX",
+      "meta": "B 站 · 54分钟",
+      "note": "芯片厂商研究院专家详细解读 R17：RedCap、NTN、覆盖增强、节能等，回顾 R15、R16 脉络。"
+    },
+    {
+      "type": "video",
+      "title": "【通俗易懂】5G R16版本新功能",
+      "url": "https://www.bilibili.com/video/BV1eC4y1S75j",
+      "meta": "B 站 · 38分钟",
+      "note": "通俗讲解 R16 新功能，包括 URLLC 增强、上行增强、终端节能等。"
+    },
+    {
+      "type": "video",
+      "title": "【通俗易懂】R17 5G小包数据（SDT）增强技术",
+      "url": "https://www.bilibili.com/video/BV1oG411q7af",
+      "meta": "B 站 · 16分钟",
+      "note": "15 分钟讲 R17 小数据传输（SDT）：RRC_INACTIVE 下不恢复连接也能发小包。"
+    },
+    {
+      "type": "video",
+      "title": "【小K技术漫谈】R17释放5G更多潜力，毫米波技术知多少？",
+      "url": "https://www.bilibili.com/video/BV1fm4y177Nx",
+      "meta": "B 站 · 5分钟",
+      "note": "4 分钟了解 R17 毫米波频段扩展到 71 GHz（FR2-2）的意义。"
+    }
+  ],
+  "s7-advanced": [
+    {
+      "type": "video",
+      "title": "【录屏】5G-Advanced技术与标准研讨会 暨 3GPP R18标准立项解读",
+      "url": "https://www.bilibili.com/video/BV1TP4y1E7Yy",
+      "meta": "B 站 · 3小时10分钟",
+      "note": "5G-Advanced 技术与标准研讨会录屏，解读 R18 立项内容，时长 3 小时，适合深入了解。"
+    },
+    {
+      "type": "video",
+      "title": "走近6G！走近通信感知一体化",
+      "url": "https://www.bilibili.com/video/BV1J3411a7oS",
+      "meta": "B 站 · 7分钟",
+      "note": "高校出品的 6 分钟短片，直观介绍通信感知一体化是什么、能做什么。"
+    },
+    {
+      "type": "video",
+      "title": "【小白也能看懂】6G通信展望---智能超表面，轨道角动量，全息无线电等",
+      "url": "https://www.bilibili.com/video/BV11X4y1X7PH",
+      "meta": "B 站 · 1小时10分钟",
+      "note": "面向小白讲 6G 愿景和潜在技术：智能超表面、轨道角动量、全息无线电等。"
     }
   ]
 };

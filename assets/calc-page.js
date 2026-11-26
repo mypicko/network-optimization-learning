@@ -1,4 +1,4 @@
-// 工具箱页面：NR-ARFCN 换算、参数集、峰值速率三个计算器
+// 工具箱页面：NR-ARFCN 换算、参数集、峰值速率三个计算器；规划优化类计算器见 plan-calc-page.js
 (function () {
   const C = window.Calc;
   const esc = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -186,16 +186,21 @@
 
   function render() {
     const root = document.getElementById("calc");
+    const plan = window.PlanCalcPage;
     root.innerHTML = `
       <section class="hero">
         <h1>工具箱</h1>
-        <p>边学边算：频点换算、参数集和峰值速率。公式全部来自 3GPP 规范，标注了出处，可以对照规范自己验算。</p>
-        <p class="calc-jump"><a href="#arfcn">NR-ARFCN 换算</a><a href="#numerology">参数集与 RB 数</a><a href="#rate">峰值速率</a></p>
+        <p>边学边算：频点换算、参数集、峰值速率，以及链路预算、测量值换算、KPI 和 PCI 核查等规划优化工具。公式都标注了 3GPP 规范出处，可以对照规范自己验算。</p>
+        <p class="calc-jump"><a href="#arfcn">NR-ARFCN 换算</a><a href="#numerology">参数集与 RB 数</a><a href="#rate">峰值速率</a>${plan ? plan.LINKS.map(([id, t]) => `<a href="#${id}">${t}</a>`).join("") : ""}</p>
       </section>
+      <h2 class="calc-group" id="nr">NR 空口</h2>
       ${arfcnCard()}${numerologyCard()}${rateCard()}`;
     bindArfcn(root);
     bindNumerology(root);
     bindRate(root);
+    if (plan) plan.render(root);
+    // 内容是脚本生成的，页面加载时浏览器还找不到锚点，生成后再跳一次
+    if (location.hash) { const t = document.getElementById(location.hash.slice(1)); if (t) t.scrollIntoView(); }
   }
 
   window.CalcPage = { render };

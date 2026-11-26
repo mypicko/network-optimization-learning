@@ -1,4 +1,4 @@
-// 5G 路径 · 阶段 7 演进与前沿：模块知识讲解
+// 5G 路径 · 阶段 8 演进与前沿：R16 / R17、5G-Advanced 两个模块的知识讲解（模块 id 沿用 s7-*）
 // 说明：前沿内容变化快，时间线和商用进展以 3GPP 和运营商的最新公开信息为准
 window.LESSONS = window.LESSONS || {};
 window.LESSONS["5g"] = window.LESSONS["5g"] || {};

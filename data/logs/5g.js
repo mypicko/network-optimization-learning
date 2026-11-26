@@ -84,7 +84,7 @@ window.SIGLOGS["5g"] = {
         fields: [
           ["supiOrSuci: suci-0-460-00-0000-1-1-…", "AMF 把 SUCI 交给 AUSF，UDM 里的 SIDF 解密出 SUPI"],
           ["servingNetworkName: 5G:mnc000.mcc460.3gppnetwork.org", "参与密钥推导，防止拿别的网络的鉴权向量冒充"],
-          ["5gAuthData: RAND, AUTN, HXRES*", "UDM 生成鉴权向量，AUSF 只把 HXRES* 给 AMF（RES* 原值留在 AUSF）"]
+          ["5gAuthData: RAND, AUTN, HXRES*", "UDM 生成鉴权向量，AUSF 算出 HXRES* 交给 AMF，XRES* 原值留在 AUSF 做最终比对"]
         ],
         explain: "这一步在核心网内部完成，空口看不到，但在核心网信令跟踪里能看到对应的 HTTP/2 请求。",
         spec: "TS 33.501 §6.1.3.2；TS 29.509"
@@ -246,7 +246,7 @@ window.SIGLOGS["5g"] = {
         dir: "UE → 源 gNB", iface: "RRC", msg: "MeasurementReport",
         fields: [
           ["measId: 1", "由哪条测量配置触发"],
-          ["servCell PCI 101: rsrp 50，rsrq 22", "上报的是索引值：RSRP 索引 50 ≈ −107 dBm"],
+          ["servCell PCI 101: rsrp 50，rsrq 63", "上报的是索引值：RSRP 索引 50 ≈ −107 dBm，RSRQ 索引 63 ≈ −12 dB"],
           ["neighCell PCI 210: rsrp 58", "≈ −99 dBm，比服务小区好约 8 dB，满足 A3 条件"]
         ],
         explain: "SS-RSRP 上报映射：索引 n 表示 −157+n ≤ RSRP < −156+n（dBm）。看日志时要先换算成 dBm 再分析。",
@@ -358,7 +358,7 @@ window.SIGLOGS["5g"] = {
           ["Service Accept: PDU session status，PDU session reactivation result", "告诉手机哪些会话已恢复"],
           ["Initial Context Setup Response: 基站下行 TEID → SMF → UPF", "UPF 拿到新的下行 TEID，把缓存的包发出去"]
         ],
-        explain: "从寻呼到第一包下行数据送达的时间，是“被叫接通时延”类 KPI 的核心。寻呼成功率低常见原因：覆盖差、TA 列表规划不当、寻呼信道拥塞。",
+        explain: "从寻呼到第一包下行数据送达的时间，是“被叫接通时延”类 KPI 的核心。寻呼成功率低常见原因：覆盖差、TAI 列表规划不当、寻呼信道拥塞。",
         spec: "TS 38.413 §8.3.1；TS 24.501 §5.6.1.4；TS 23.502 §4.2.3.3"
       }
     ]

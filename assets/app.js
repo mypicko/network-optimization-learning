@@ -124,6 +124,7 @@
       <div class="mod-body">
         ${statusRow(m)}
         <h4>学完你能</h4><ul class="goals">${goals}</ul>
+        ${xrefHtml(m)}
         ${explain}
         <h4>${explain ? "核心概念回顾" : "核心概念"}</h4><div class="chips">${concepts}</div>
         ${specs ? `<h4>规范出处</h4><ul class="specs">${specs}</ul>` : ""}
@@ -211,6 +212,16 @@
   }
 
   // 示意信令日志：data/logs/<主题>.js，逐条消息可展开看字段解读
+  // 跨路线互链：xref: [{ t: 主题 id, m: 模块 id, note: 一句说明 }]，目标路径数据没加载就不显示
+  function xrefHtml(m) {
+    const items = (m.xref || []).map((x) => {
+      const p = (window.PATHWAYS || {})[x.t];
+      const target = p && p.stages.flatMap((s) => s.modules).find((mm) => mm.id === x.m);
+      return target ? `<li><a href="pathway.html?t=${encodeURIComponent(x.t)}#${encodeURIComponent(x.m)}">${esc(p.title)} · ${esc(target.title)}</a>${x.note ? ` <span class="meta">${esc(x.note)}</span>` : ""}</li>` : "";
+    }).join("");
+    return items ? `<div class="xref"><span class="meta">相关路线：</span><ul>${items}</ul></div>` : "";
+  }
+
   function sigLogHtml(p, m) {
     const log = ((window.SIGLOGS || {})[p.id] || {})[m.id];
     if (!log) return "";

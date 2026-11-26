@@ -85,15 +85,17 @@
     });
   }
 
-  function renderPage(topic = "5g") {
+  function renderPage(fallback = "5g") {
+    const params = new URLSearchParams(location.search);
+    const topic = (root.CASES || {})[params.get("t")] ? params.get("t") : fallback;
     const list = (root.CASES || {})[topic] || [];
     const el = document.getElementById("cases");
     const done = read();
-    const params = new URLSearchParams(location.search);
     let cat = CATS.includes(params.get("cat")) ? params.get("cat") : "";
     const finished = list.filter((c) => done[c.id]).length;
+    const sw = root.TopicSwitch ? root.TopicSwitch.html(topic, "cases.html", (id) => ((root.CASES || {})[id] || []).length > 0) : "";
     el.innerHTML = `<section class="hero">
-        <h1>网优案例库</h1>
+        <h1>网优案例库</h1>${sw}
         <p>${list.length} 个典型问题，覆盖、切换、掉线、接入、速率、干扰都有。每个案例先给现象和数据，你先判断原因，再看完整的定位过程和优化措施。</p>
         <p class="meta">已做 ${finished} / ${list.length}。案例为原创教学示例，数值是虚构的，不对应任何真实网络；参数取值仅作示意，实际以设备厂家和运营商规范为准。</p>
       </section>
@@ -123,7 +125,7 @@
     const list = filterCases((root.CASES || {})[topic], { module: mid });
     if (!list.length) return "";
     return `<h4>网优案例</h4><ul class="case-links">${list.map((c) =>
-      `<li><a href="cases.html#${esc(c.id)}"><span class="badge">${esc(c.cat)}</span> ${esc(c.title)}</a></li>`).join("")}</ul>`;
+      `<li><a href="cases.html?t=${encodeURIComponent(topic)}#${esc(c.id)}"><span class="badge">${esc(c.cat)}</span> ${esc(c.title)}</a></li>`).join("")}</ul>`;
   }
 
   root.CaseLib = { ...pure, renderPage, moduleLinks };

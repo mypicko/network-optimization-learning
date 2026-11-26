@@ -90,17 +90,21 @@
   // ---------- 浮动解释框 ----------
   let tip = null, current = null, hideTimer = null;
 
-  function moduleTitle(mid) {
-    const p = (window.PATHWAYS || {})["5g"];
+  function moduleTitle(mid, topic = "5g") {
+    const p = (window.PATHWAYS || {})[topic];
     if (!p) return null;
     const m = p.stages.flatMap((s) => s.modules).find((x) => x.id === mid);
     return m ? m.title : null;
   }
+  // 术语的“深入学习”链接：m → 5G 路径模块，lm → LTE 路径模块（页面加载了对应路径数据才显示）
+  function deeperLinks(e, prefix) {
+    return [["5g", e.m], ["lte", e.lm]].filter(([t, mid]) => mid && moduleTitle(mid, t))
+      .map(([t, mid]) => `<a href="pathway.html?t=${t}#${esc(mid)}">${prefix}${esc(moduleTitle(mid, t))}</a>`);
+  }
 
   function tipHtml(e) {
     const name = [e.en, e.zh].filter(Boolean).map(esc).join(" · ");
-    const deeper = e.m && moduleTitle(e.m)
-      ? `<a href="pathway.html?t=5g#${esc(e.m)}">深入：${esc(moduleTitle(e.m))}</a> · ` : "";
+    const deeper = deeperLinks(e, "深入：").map((a) => `${a} · `).join("");
     const mineTag = e.mine ? ` <span class="tip-mine">我的释义</span>` : "";
     const orig = e.mine && e.orig ? `<div class="tip-orig"><span>原释义：</span>${esc(e.orig.d)}</div>` : "";
     return `<div class="tip-head"><strong>${esc(e.t)}</strong> <span>${name}</span>${mineTag}</div>
@@ -191,12 +195,12 @@
       <p class="meta" id="gl-count"></p>
       <dl class="gl-list">
         ${[...ENTRIES].sort((a, b) => a.t.localeCompare(b.t, "en", { sensitivity: "base" })).map((e) => {
-          const mt = e.m && moduleTitle(e.m);
+          const links = deeperLinks(e, "深入学习：").map((a) => a.replace("</a>", " →</a>")).join(" ");
           return `<div class="gl-item" id="${slug(e.t)}" data-cat="${esc(e.c)}"
               data-search="${esc([e.t, e.en, e.zh, e.d, ...(e.alias || [])].join(" ").toLowerCase())}">
             <dt><strong>${esc(e.t)}</strong> ${e.en ? `<span class="gl-en">${esc(e.en)}</span>` : ""}
               <span class="gl-zh">${esc(e.zh || "")}</span> <span class="badge">${esc(e.c)}</span>${e.mine ? ` <span class="badge badge-mine">我的释义</span>` : ""}</dt>
-            <dd>${esc(e.d)}${mt ? ` <a href="pathway.html?t=5g#${esc(e.m)}">深入学习：${esc(mt)} →</a>` : ""}
+            <dd>${esc(e.d)}${links ? ` ${links}` : ""}
               ${e.mine && e.orig ? `<div class="gl-orig">原释义：${esc(e.orig.d)}</div>` : ""}
               <a href="#" class="gl-edit" data-edit-term="${esc(e.t)}">${e.mine ? "修改我的释义" : "补充我的释义"}</a></dd>
           </div>`;

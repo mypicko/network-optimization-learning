@@ -68,6 +68,7 @@ window.PATHWAYS["5g"] = {
           id: "s0-lte",
           title: "4G LTE 体系回顾",
           hours: 6,
+          xref: [{ t: "lte", m: "lte-arch", note: "想系统学 LTE，看完整的 4G LTE 路线" }, { t: "lte", m: "lte-attach", note: "LTE 附着流程详解" }],
           goals: [
             "画出 LTE 的 E-UTRAN + EPC 架构（eNB、MME、SGW、PGW、HSS、PCRF）",
             "说清 LTE 附着和默认承载建立的主要步骤",
@@ -139,6 +140,7 @@ window.PATHWAYS["5g"] = {
         },
         {
           id: "s1-deploy",
+          xref: [{ t: "lte", m: "lte-interwork", note: "从 LTE 侧看 4G / 5G 互操作" }],
           tools: ["arfcn", "rate"],
           title: "部署方式：NSA 与 SA",
           hours: 3,
@@ -661,6 +663,7 @@ window.PATHWAYS["5g"] = {
           id: "s5-voice",
           title: "5G 语音：EPS Fallback 与 VoNR",
           hours: 4,
+          xref: [{ t: "lte", m: "lte-volte", note: "VoLTE 基础" }, { t: "lte", m: "lte-srvcc", note: "语音连续性" }],
           goals: [
             "理解 5G 语音的两种方案：EPS Fallback 与 VoNR",
             "理解 IMS 在 5G 语音中的角色",

@@ -18,7 +18,11 @@
 - **备份**：“我的笔记”页的导出 / 导入备份把学习进度（含学习中 / 跳过状态）、笔记、错题本打包成一个 JSON 文件，换设备可接着学（兼容旧版只含笔记的备份文件）
 - **5G 移动通信**（已上线）：9 个阶段、39 个模块、约 153 小时
   前置基础 → 5G 全局视图 → NR 空口物理层 → NR 高层协议与接入网 → 5G 核心网 → 端到端业务与信令 → 网络规划（网优方向，选学）→ 测试与优化（网优方向，选学）→ 演进与前沿
-- 4G LTE、IMS 与语音、射频与天线、承载传输、无线网优、O-RAN、蜂窝物联网、卫星 NTN：规划中
+- **4G LTE**（已上线，`pathway.html?t=lte`）：8 个阶段、39 个模块、约 150 小时，题库 156 道客观题、10 个原创案例、5 段信令日志
+  无线与系统基础 → 网络架构与标识 → 物理层 → 高层协议与空口流程 → EPC 核心网 → 语音与互操作 → 网络规划与优化（网优方向，选学）→ 演进
+  内容稿在 `tools/lte-parts/`（各阶段路线条目与题目，`node tools/lte-parts/build.cjs` 合成 `data/pathways/lte.js` 和 `data/exam/lte.js`），讲解在 `data/lessons/lte/L0–L7.js`
+- 跨路线互链：模块里的“相关路线”（字段 `xref`）在 5G 和 LTE 对应模块之间互相跳转；考试、案例库顶部可切换主题
+- IMS 与语音、射频与天线、承载传输、无线网优、O-RAN、蜂窝物联网、卫星 NTN：规划中
 
 每个模块包含：学习目标、知识讲解（小节带层级编号，如 0.1.1）、配图、核心概念、3GPP 规范出处、信令流程图（部分）、自测题、实操任务、精选资源。展开模块后，左侧导航会在所属阶段下列出该模块的小节目录，并高亮当前阅读位置。
 
@@ -44,6 +48,10 @@ assets/quickstart.js     入门快线渲染、判分自测
 assets/glossary.js       术语自动标注、浮动解释、术语表页
 data/topics.js           主题目录
 data/pathways/5g.js      5G 路径内容
+data/pathways/lte.js     LTE 路径内容（由 tools/lte-parts/build.cjs 生成）
+data/lessons/lte/L*.js   LTE 各阶段知识讲解
+data/exam/lte.js / data/cases/lte.js / data/logs/lte.js  LTE 题库、案例、信令日志
+assets/topic-switch.js   考试 / 案例库的主题切换条
 data/lessons/5g/*.js    5G 各模块的知识讲解（s0–s7 按原阶段分文件；planning / optimization / ai 为网优方向和 AI 网优模块）
 assets/lesson.js         讲解与课程的共用渲染器（小节编号、配图）
 data/figures/5g.js       讲解配图（由 tools/figures/build.mjs 生成）

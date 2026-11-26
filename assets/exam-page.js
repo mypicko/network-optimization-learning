@@ -7,7 +7,20 @@
   const SETTINGS_KEY = "pathway-exam-settings-v1";
   const COUNTS = [10, 20, 30, 50];
 
-  const topic = new URLSearchParams(location.search).get("t") || "5g";
+  // 主题：?t= 指定；从首页 / 错题本“开始今日复习”进来时（不带 t），选到期题最多的主题
+  const topic = (() => {
+    const qs = new URLSearchParams(location.search);
+    if (qs.get("t")) return qs.get("t");
+    if (qs.get("scope") === "due" && R) {
+      const ids = Object.keys(window.PATHWAYS || {});
+      const quickOf = (id) => (Object.values(window.QUICKSTART || {}).find((q) => q.pathway === id) || {}).id;
+      const count = (id) => R.due().filter((w) => w.key.startsWith(`${id}/`) || w.key.startsWith(`exam-${id}/`)
+        || (quickOf(id) && w.key.startsWith(`qs-${quickOf(id)}/`))).length;
+      const best = ids.map((id) => [id, count(id)]).sort((a, b) => b[1] - a[1])[0];
+      if (best && best[1]) return best[0];
+    }
+    return "5g";
+  })();
   const pathway = (window.PATHWAYS || {})[topic];
   const quick = Object.values(window.QUICKSTART || {}).find((q) => q.pathway === topic) || null;
   const bank = E.buildBank({ topic, bank: (window.EXAM_BANK || {})[topic] || [], pathway, quickstart: quick });
@@ -30,7 +43,10 @@
 
   // ---------- 设置 ----------
   function defaults() {
-    const saved = { count: 20, types: E.TYPES.map((t) => t.id), scope: "all", stages: [], ...store.get(SETTINGS_KEY, {}) };
+    const stored = { count: 20, types: E.TYPES.map((t) => t.id), scope: "all", stages: [], ...store.get(SETTINGS_KEY, {}) };
+    // 设置跨主题共用：只保留当前主题存在的阶段，切到别的主题时“按阶段”的选择不会串
+    const own = new Set((pathway ? pathway.stages : []).map((st) => st.id));
+    const saved = { ...stored, stages: (stored.stages || []).filter((id) => own.has(id)) };
     // 从首页“开始今日复习”进来：只考今天到期的题，题型不限，题数取全部到期题
     if (new URLSearchParams(location.search).get("scope") === "due" && dueKeys().length) {
       return { ...saved, scope: "due", types: E.TYPES.map((t) => t.id), count: Math.max(1, dueKeys().length) };
@@ -57,7 +73,8 @@
     const history = store.get(HISTORY_KEY, []).slice(0, 8);
     return `
       <section class="hero">
-        <h1>模拟考试</h1>
+        <h1>模拟考试${pathway ? `：${esc(pathway.title)}` : ""}</h1>
+        ${window.TopicSwitch ? window.TopicSwitch.html(topic, "exam.html", (id) => ((window.EXAM_BANK || {})[id] || []).length > 0) : ""}
         <p>每次从题库随机抽题组卷。单选、多选、判断题交卷后自动判分；问答题交卷后给出参考答案，由你自己评分。答错的题自动记入<a href="notes.html#review">错题本</a>。</p>
         <p class="meta">题库共 ${bank.length} 题：${E.TYPES.map((t) => `${t.label} ${typeCount(t.id)}`).join(" · ")}。题目依据 3GPP 规范和本站讲解内容编写。</p>
       </section>

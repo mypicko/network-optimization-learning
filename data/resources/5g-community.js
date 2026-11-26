@@ -1,5 +1,5 @@
 // 社区精选资源（B 站，浏览器模式挖掘 + 字幕审核后精选，格式同 tools/review.html 导出）
-// 生成时间：2026-11-21（10 个模块）；2026-11-23 补充 20 个模块，同样经字幕审核后精选
+// 生成时间：2026-11-21（10 个模块）；2026-11-23 补充 20 个模块，同样经字幕审核后精选；2026-11-26 补充 9 个规划与优化模块
 window.RESOURCES_COMMUNITY = window.RESOURCES_COMMUNITY || {};
 window.RESOURCES_COMMUNITY["5g"] = {
   "s0-ofdm": [
@@ -577,6 +577,84 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "从空口信令看 VoNR 主叫、被叫流程，教你在日志里区分主被叫。"
     }
   ],
+  "s6-plan": [
+    {
+      "type": "video",
+      "title": "04 5G网络规划",
+      "url": "https://www.bilibili.com/video/BV1gd4y1r7FT",
+      "meta": "B 站 · 1小时53分钟",
+      "note": "网优实训课的网络规划一讲：从规划流程讲到容量、覆盖和功率规划，评论区在讨论 d3D 和单小区流量怎么算，适合系统过一遍。"
+    },
+    {
+      "type": "video",
+      "title": "课工场《5G与网络》07-5G无线网络架构及规划",
+      "url": "https://www.bilibili.com/video/BV1qi4y1u742",
+      "meta": "B 站 · 1小时17分钟 · 4P",
+      "note": "课工场课程：先讲接入网、承载网、核心网的演进，再讲 5G 网络规划要注意什么，评论称讲解清楚。"
+    },
+    {
+      "type": "video",
+      "title": "5G网优仿真-校园网络规划",
+      "url": "https://www.bilibili.com/video/BV1LHyzBmEyy",
+      "meta": "B 站 · 21分钟",
+      "note": "仿真平台演示：在校园地图上画测试路线，按约 600 米站距布 6 个站，直观感受“站点规划”是怎么做的。"
+    }
+  ],
+  "s6-budget": [
+    {
+      "type": "video",
+      "title": "【小白也能看懂】5G链路预算-路径损耗，穿透损耗，人体损耗等",
+      "url": "https://www.bilibili.com/video/BV1uN411h7Nn",
+      "meta": "B 站 · 1小时10分钟",
+      "note": "捻叶成剑的链路预算专题：从“基站能打多远”讲起，逐项讲路径损耗、穿透损耗、人体损耗等，收藏率高，适合配合本站计算器看。"
+    },
+    {
+      "type": "video",
+      "title": "IUV-5G全网建设-容量计算1（无线部分）",
+      "url": "https://www.bilibili.com/video/BV1sg411Q7wP",
+      "meta": "B 站 · 20分钟",
+      "note": "按一套数据手算一遍：发射功率加增益、减灵敏度和各项余量得到最大允许路损 123.8 dB，再代入传播模型反推距离，步骤清楚。"
+    },
+    {
+      "type": "video",
+      "title": "移动通信第四章：路径损耗+阴影效应+噪声",
+      "url": "https://www.bilibili.com/video/BV1GHjZzGE5Y",
+      "meta": "B 站 · 1小时44分钟",
+      "note": "高校移动通信课第四章：路径损耗、阴影衰落和噪声，补齐链路预算背后的传播理论。"
+    }
+  ],
+  "s6-capacity": [
+    {
+      "type": "video",
+      "title": "蓝桥杯5G全网规划两种方法算5G速率",
+      "url": "https://www.bilibili.com/video/BV14z42187MF",
+      "meta": "B 站 · 13分钟",
+      "note": "12 分钟用两种方法算 5G 上下行理论速率：调制阶数、流数、帧结构配比逐项代入，适合配合本站速率计算器核对。"
+    }
+  ],
+  "s6-params": [
+    {
+      "type": "video",
+      "title": "[小白也能看懂]LTE的参考信号，CRS，DMRS，SRS，模三干扰，模6干扰",
+      "url": "https://www.bilibili.com/video/BV1Cz4y1f7Rm",
+      "meta": "B 站 · 43分钟",
+      "note": "讲 LTE 的 PCI、参考信号和模 3 / 模 6 干扰，收藏率高；NR 的规则不同（看 PCI mod 3、mod 4、mod 30），但“为什么 PCI 要错开”的道理相通。"
+    },
+    {
+      "type": "video",
+      "title": "随机接入信道PRACH(1)",
+      "url": "https://www.bilibili.com/video/BV1pe4y1P7cD",
+      "meta": "B 站 · 1小时8分钟",
+      "note": "讲 PRACH 信道结构和频域分布，从 LTE 的 839 / 139 长度序列讲起，评论称细致，是根序列规划的基础。"
+    },
+    {
+      "type": "video",
+      "title": "4G5G随机接入话题之6-5G当中SSB和PRACH Occasion的映射，随机接入如何映射到不同的波束或SSB：时域频域和码域",
+      "url": "https://www.bilibili.com/video/BV1LK411p78W",
+      "meta": "B 站 · 1小时1分钟",
+      "note": "进阶：SSB 与 PRACH occasion 的映射，讲清随机接入如何对应到不同波束，评论称“讲得太清楚了”。"
+    }
+  ],
   "s6-kpi": [
     {
       "type": "video",
@@ -614,6 +692,38 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "note": "网优培训机构的 5G 网络优化入门课（17 集），从理论讲到 KPI 与优化思路。"
     }
   ],
+  "s7-test": [
+    {
+      "type": "video",
+      "title": "外场测试宝典-5G 外场测试无线参数解析",
+      "url": "https://www.bilibili.com/video/BV1364y1J76Y",
+      "meta": "B 站 · 35分钟",
+      "note": "外场测试宝典：逐个解析 5G 路测里看到的无线参数，评论称“很详细、巩固复习又学到新东西”。"
+    },
+    {
+      "type": "video",
+      "title": "【通信、网优、设计院、运营商认知】LTE无线基站地面参数简单规划全流程——路测方法与数据分析",
+      "url": "https://www.bilibili.com/video/BV1vm4y1i74w",
+      "meta": "B 站 · 7分钟",
+      "note": "7 分钟演示用手机网优软件做室外路测和室内打点测试，再把采集数据铺到地图上看覆盖，帮你理解 DT / CQT 的数据从哪来。"
+    }
+  ],
+  "s7-opt-flow": [
+    {
+      "type": "video",
+      "title": "【小白也能看懂】网优RF优化方法---上：弱覆盖，重叠覆盖，越区覆盖，定义，分析解决",
+      "url": "https://www.bilibili.com/video/BV1S34y1o7pG",
+      "meta": "B 站 · 1小时37分钟",
+      "note": "捻叶成剑讲 RF 优化：弱覆盖、重叠覆盖、越区覆盖的定义、分析和解决办法，是优化流程里最基础也最常用的一环。"
+    },
+    {
+      "type": "video",
+      "title": "5G网络优化-路测分析（单站验证）",
+      "url": "https://www.bilibili.com/video/BV1kCuH6REjz",
+      "meta": "B 站 · 17分钟",
+      "note": "仿真平台演示单站验证全过程：准备工具、确认路线、绕站移动测试和定点测试，帮你建立单验的整体印象。"
+    }
+  ],
   "s6-coverage": [
     {
       "type": "video",
@@ -642,6 +752,52 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV1fXMB6fEKc",
       "meta": "B 站 · 55分钟",
       "note": "用竞赛仿真平台完整演示路测与覆盖优化过程，适合准备通信类竞赛的同学。"
+    }
+  ],
+  "s7-mobility-opt": [
+    {
+      "type": "video",
+      "title": "5G切换系列讨论之话题1-5G切换的总体思路和目的，网元级别的HO功能介绍，包括IntraDU,CU，InterDU,CU等多种场景",
+      "url": "https://www.bilibili.com/video/BV1FG4y1t7Xo",
+      "meta": "B 站 · 20分钟",
+      "note": "5G 漫话切换系列第 1 讲：切换的总体思路，以及站内、跨 DU、跨 CU 等不同网元级别的切换场景。"
+    },
+    {
+      "type": "video",
+      "title": "【通俗易懂】5G NR切换分析",
+      "url": "https://www.bilibili.com/video/BV17i4y1D7JW",
+      "meta": "B 站 · 22分钟",
+      "note": "21 分钟通俗讲 5G NR 切换分析，收藏率不错，适合在学完切换流程后看。"
+    },
+    {
+      "type": "video",
+      "title": "请你来分析，这一类5G切换失败到底是怎么引起的？part1-现象",
+      "url": "https://www.bilibili.com/video/BV1et4y137mR",
+      "meta": "B 站 · 20分钟",
+      "note": "真实实验里的切换失败排查（上集）：从现象出发，下集 BV1rr4y1572e 用终端日志定位到目标小区随机接入失败，示范“从现象到根因”。"
+    }
+  ],
+  "s7-access-rate": [
+    {
+      "type": "video",
+      "title": "【通俗易懂】5G NR接入问题分析",
+      "url": "https://www.bilibili.com/video/BV1Ui4y1D73v",
+      "meta": "B 站 · 40分钟",
+      "note": "39 分钟讲 5G NR 接入问题的分析思路，评论称“讲得非常详细、受益匪浅”。"
+    },
+    {
+      "type": "video",
+      "title": "【通俗易懂】手机信号总是掉线怎么办-5G掉线问题分析及原因排查",
+      "url": "https://www.bilibili.com/video/BV1xN4y1q7HN",
+      "meta": "B 站 · 36分钟",
+      "note": "同一作者的掉线问题分析：掉线怎么定义、常见原因有哪些、怎么排查。"
+    },
+    {
+      "type": "video",
+      "title": "实验工坊WEB版-5G网络优化技术-速率优化案例",
+      "url": "https://www.bilibili.com/video/BV1TW4y1s7sY",
+      "meta": "B 站 · 12分钟",
+      "note": "仿真实验：从帧结构和上下行时隙配比入手做速率优化，适合理解“速率上不去先看配置”。"
     }
   ],
   "s6-troubleshoot": [
@@ -704,6 +860,22 @@ window.RESOURCES_COMMUNITY["5g"] = {
       "url": "https://www.bilibili.com/video/BV11X4y1X7PH",
       "meta": "B 站 · 1小时10分钟",
       "note": "面向小白讲 6G 愿景和潜在技术：智能超表面、轨道角动量、全息无线电等。"
+    }
+  ],
+  "s8-ai-opt": [
+    {
+      "type": "video",
+      "title": "5G+AI：它是如何改变通信的？",
+      "url": "https://www.bilibili.com/video/BV13a4y1y7ub",
+      "meta": "B 站 · 4分钟",
+      "note": "中国移动科协的 4 分钟科普：AI 在资源调度、网络运维等场景能为移动通信做什么。"
+    },
+    {
+      "type": "video",
+      "title": "让5G“学会思考”：AI Agent如何赋能自智网络？",
+      "url": "https://www.bilibili.com/video/BV1ZSjd6PEXx",
+      "meta": "B 站 · 4分钟",
+      "note": "厂商的 3 分钟技术介绍：AI 智能体如何推动自智网络从 L3 迈向 L4，可对照本模块“大模型智能体”一节看。"
     }
   ]
 };

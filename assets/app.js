@@ -110,6 +110,7 @@
 
   function renderHome() {
     renderContinueCard();
+    if (window.Stats) window.Stats.render(document.getElementById("home-stats"));
     renderReviewCard();
     window.addEventListener("review-change", renderReviewCard);
     const el = document.getElementById("topics");
@@ -310,18 +311,24 @@
 
   // ---------- 路线总览：全部阶段与模块一屏看完，点模块设置状态或跳过去 ----------
   const OVERVIEW_KEY = "pathway-roadmap-open";
+  const VIEW_KEY = "pathway-roadmap-view";   // 路线总览视图：grid 卡片 / graph 线路图
+  function overviewView() { try { return localStorage.getItem(VIEW_KEY) === "graph" ? "graph" : "grid"; } catch (e) { return "grid"; } }
   function overviewHtml(p) {
     let open = true;
     try { open = localStorage.getItem(OVERVIEW_KEY) !== "0"; } catch (e) { /* 默认展开 */ }
+    const view = overviewView();
     const stages = p.stages.map((s, i) => `<div class="rm-stage">
         <div class="rm-stage-title"><span class="stage-no">${i}</span><a href="#${s.id}">${esc(s.title)}</a>${trackBadge(s)}<span class="rm-stat" data-stage="${s.id}"></span></div>
         <ol>${s.modules.map((m, j) => `<li><button type="button" class="rm-node" data-rm="${m.id}" aria-haspopup="true">
           <span class="rm-dot" aria-hidden="true"></span><span class="sec-no">${i}.${j + 1}</span><span class="rm-name">${esc(m.title)}</span></button></li>`).join("")}</ol>
       </div>`).join("");
     const legend = MS.STATES.map((x) => `<span class="rm-key st-${x.id}"><span class="rm-dot"></span>${x.label} <b data-count="${x.id}">0</b></span>`).join("");
-    return `<details class="roadmap"${open ? " open" : ""}>
+    const views = [["grid", "卡片"], ["graph", "线路图"]].map(([id, label]) =>
+      `<button type="button" class="rm-view-btn${id === view ? " on" : ""}" data-rm-view="${id}" aria-pressed="${id === view}">${label}</button>`).join("");
+    return `<details class="roadmap${view === "graph" ? " rm-graph" : ""}"${open ? " open" : ""}>
       <summary><h2>路线总览</h2><span class="rm-legend">${legend}</span></summary>
-      <p class="meta rm-tip">阶段按学习顺序排列，后面的阶段默认你已掌握前面的内容。点任一模块可以标记状态或直接跳过去；已经会的模块标“已掌握，跳过”，同样计入进度。</p>
+      <div class="rm-bar"><p class="meta rm-tip">阶段按学习顺序排列，后面的阶段默认你已掌握前面的内容。点任一模块可以标记状态或直接跳过去；已经会的模块标“已掌握，跳过”，同样计入进度。</p>
+        <div class="rm-views" role="group" aria-label="总览视图">${views}</div></div>
       <div class="rm-grid">${stages}</div>
       <div class="rm-menu" role="menu" hidden></div>
     </details>`;
@@ -452,6 +459,7 @@
           el.innerHTML = el.classList.contains("nav-stat") || el.classList.contains("rm-stat")
             ? `${ss.done}/${ss.total}`
             : `${bar(ss.pct)}<span class="meta">${ss.done}/${ss.total} · 约 ${ss.hours} 小时</span>`;
+          if (el.classList.contains("rm-stat")) el.closest(".rm-stage").classList.toggle("rm-all-done", ss.total > 0 && ss.done === ss.total);
         });
       });
       MS.STATES.forEach((x) => { const c = root.querySelector(`[data-count="${x.id}"]`); if (c) c.textContent = x.id === "done" ? s.finished - s.skip : s[x.id]; });
@@ -499,6 +507,15 @@
         closeRmMenu(root);
         return;
       }
+      const vb = e.target.closest("[data-rm-view]");
+      if (vb) {
+        const v = vb.dataset.rmView;
+        try { localStorage.setItem(VIEW_KEY, v); } catch (err) { /* 只在本次有效 */ }
+        root.querySelector(".roadmap").classList.toggle("rm-graph", v === "graph");
+        root.querySelectorAll("[data-rm-view]").forEach((b) => { b.classList.toggle("on", b === vb); b.setAttribute("aria-pressed", String(b === vb)); });
+        closeRmMenu(root);
+        return;
+      }
       const node = e.target.closest(".rm-node");
       if (node) {
         const menu = root.querySelector(".rm-menu");
@@ -531,6 +548,7 @@
       if (e.target.open) {
         renderFlows(e.target);
         try { localStorage.setItem(LAST_KEY, JSON.stringify({ t: p.id, m: e.target.id, at: Date.now() })); } catch (err) { /* 存储不可用时首页不显示“继续学习” */ }
+        if (window.Stats) window.Stats.record();
       }
       updateSubNav(root, p, e.target.id);
     }, true);
@@ -644,7 +662,7 @@
     }
     nodes.forEach((n) => n.closest(".flow") && n.closest(".flow").classList.remove("flow-loading", "flow-failed"));
     if (!mermaidReady) {
-      const dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const dark = window.Theme ? window.Theme.isDark() : !!(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches);
       window.mermaid.initialize({ startOnLoad: false, theme: dark ? "dark" : "default", securityLevel: "strict" });
       mermaidReady = true;
     }

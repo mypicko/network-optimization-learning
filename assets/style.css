@@ -791,3 +791,18 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
 }
 .rm-graph .rm-stage li:not(:last-child)::after { display: none; }
 .rm-graph .rm-stage ol { gap: 8px 10px; }
+
+/* 左侧目录：阶段折叠按钮、全部展开 / 收起 */
+.nav-tools { display: flex; align-items: center; gap: 4px; padding: 0 0 6px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.nav-tools .meta { flex: 1; font-size: 13px; }
+.nav-all { font: inherit; font-size: 12px; padding: 2px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); cursor: pointer; }
+.nav-all:hover { color: var(--accent); border-color: var(--accent); }
+.stage-nav .nav-row { justify-content: flex-start; gap: 4px; }
+.stage-nav .nav-row > a { flex: 1; min-width: 0; }
+.nav-fold { flex: none; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 4px; background: none; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.nav-fold::before { content: ""; width: 0; height: 0; border-left: 5px solid currentColor; border-top: 4px solid transparent; border-bottom: 4px solid transparent; transition: transform .15s; }
+.nav-stage.expanded > .nav-row .nav-fold::before { transform: rotate(90deg); }
+.nav-fold:hover { background: var(--chip); color: var(--text); }
+.nav-sub .nav-mod.st-done > a::after, .nav-sub .nav-mod.st-skip > a::after { content: " ✓"; color: var(--done); }
+.nav-sub .nav-mod.st-skip > a::after { color: var(--skip); }
+@media (max-width: 760px) { .nav-sub.manual:not([hidden]) { display: block; } }

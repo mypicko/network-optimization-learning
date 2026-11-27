@@ -411,7 +411,7 @@
 
     const nav = p.stages.map((s, i) =>
       `<li class="nav-stage" data-nav-stage="${s.id}">
-        <div class="nav-row"><a href="#${s.id}"><span class="stage-no">${i}</span>${esc(s.title)}</a><span class="nav-stat" data-stage="${s.id}"></span></div>
+        <div class="nav-row"><button type="button" class="nav-fold" data-fold="${s.id}" aria-expanded="false" aria-label="展开 ${esc(s.title)} 的模块列表"></button><a href="#${s.id}"><span class="stage-no">${i}</span>${esc(s.title)}</a><span class="nav-stat" data-stage="${s.id}"></span></div>
         <ol class="nav-sub" hidden></ol>
       </li>`).join("");
     const stagesHtml = p.stages.map((s, i) => {
@@ -440,7 +440,7 @@
       </section>
       ${overviewHtml(p)}
       <div class="layout">
-        <nav class="stage-nav"><ol>${nav}</ol></nav>
+        <nav class="stage-nav"><div class="nav-tools"><span class="meta">目录</span><button type="button" class="nav-all" data-fold-all="open">全部展开</button><button type="button" class="nav-all" data-fold-all="close">全部收起</button></div><ol>${nav}</ol></nav>
         <div class="stages">${stagesHtml}</div>
       </div>`;
 
@@ -463,6 +463,10 @@
         });
       });
       MS.STATES.forEach((x) => { const c = root.querySelector(`[data-count="${x.id}"]`); if (c) c.textContent = x.id === "done" ? s.finished - s.skip : s[x.id]; });
+      root.querySelectorAll(".nav-mod a[data-mod]").forEach((a) => {
+        const li = a.parentElement;
+        MS.STATES.forEach((x) => li.classList.toggle(`st-${x.id}`, statusOf(p.id, a.dataset.mod) === x.id));
+      });
       allModules(p).forEach((m) => {
         const st = statusOf(p.id, m.id);
         const cls = (el) => { MS.STATES.forEach((x) => el.classList.remove(`st-${x.id}`)); el.classList.add(`st-${st}`); };
@@ -525,6 +529,20 @@
       }
       if (!e.target.closest(".rm-menu")) closeRmMenu(root);
       if (e.target.closest(".rm-go")) closeRmMenu(root);
+      const fold = e.target.closest("[data-fold]");
+      if (fold) {
+        const stage = p.stages.find((st) => st.id === fold.dataset.fold);
+        navFold[stage.id] = !stageExpanded(stage);
+        renderStageSub(root, p, stage);
+        observeSections(root);
+        return;
+      }
+      const foldAll = e.target.closest("[data-fold-all]");
+      if (foldAll) {
+        p.stages.forEach((st) => { navFold[st.id] = foldAll.dataset.foldAll === "open"; renderStageSub(root, p, st); });
+        observeSections(root);
+        return;
+      }
       // 点左侧导航里的模块名：展开该模块再跳过去（收起的 <details> 只跳转不展开）
       const navMod = e.target.closest("a[data-mod]");
       if (navMod) {
@@ -575,33 +593,47 @@
   }
 
   // ---------- 左侧导航：展开的模块在所属阶段下列出小节目录 ----------
-  function updateSubNav(root, p, moduleId) {
-    const si = p.stages.findIndex((s) => s.modules.some((m) => m.id === moduleId));
-    if (si < 0) return;
-    const stage = p.stages[si];
-    const sub = root.querySelector(`[data-nav-stage="${stage.id}"] .nav-sub`);
-    if (!sub) return;
+  // 左侧目录的折叠状态：{ 阶段 id: true 展开 / false 收起 }；没手动点过的阶段按“有模块展开就展开”自动处理
+  const navFold = {};
+  const isModOpen = (m) => { const el = document.getElementById(m.id); return !!(el && el.open); };
+  function stageExpanded(stage) {
+    return stage.id in navFold ? navFold[stage.id] : stage.modules.some(isModOpen);
+  }
+
+  // 渲染一个阶段下的模块列表；展开的模块下面再挂小节目录
+  function renderStageSub(root, p, stage) {
+    const si = p.stages.indexOf(stage);
+    const li = root.querySelector(`[data-nav-stage="${stage.id}"]`);
+    if (!li) return;
+    const sub = li.querySelector(".nav-sub");
+    const btn = li.querySelector(".nav-fold");
+    const expanded = stageExpanded(stage);
+    btn.setAttribute("aria-expanded", String(expanded));
+    btn.setAttribute("aria-label", `${expanded ? "收起" : "展开"} ${stage.title} 的模块列表`);
+    li.classList.toggle("expanded", expanded);
+    sub.classList.toggle("manual", stage.id in navFold);
+    if (!expanded) { sub.innerHTML = ""; sub.hidden = true; return; }
     const lessons = (window.LESSONS || {})[p.id] || {};
-    const isOpen = (m) => { const el = document.getElementById(m.id); return !!(el && el.open); };
-    // 阶段里只要有一个模块展开，就列出该阶段的全部模块（不能只列展开的那个，否则 0.1/0.2 会“消失”）；
-    // 小节目录只挂在展开的模块下面
-    if (!stage.modules.some(isOpen)) {
-      sub.innerHTML = "";
-      sub.hidden = true;
-      observeSections(root);
-      return;
-    }
-    const html = stage.modules.map((m, j) => {
+    sub.innerHTML = stage.modules.map((m, j) => {
       const prefix = `${si}.${j + 1}`;
-      const open = isOpen(m);
+      const open = isModOpen(m);
       const lesson = lessons[m.id];
       const secs = open && lesson && window.Lesson ? window.Lesson.outline(m.id, lesson.sections, prefix) : [];
       const secHtml = secs.map((it) =>
         `<li><a href="#${it.id}" data-sec="${it.id}"><span class="sec-no">${it.no}</span>${esc(it.h)}</a></li>`).join("");
-      return `<li class="nav-mod${open ? " open" : ""}"><a href="#${m.id}" data-mod="${m.id}"><span class="sec-no">${prefix}</span>${esc(m.title)}</a>${secHtml ? `<ol class="nav-sec">${secHtml}</ol>` : ""}</li>`;
+      return `<li class="nav-mod${open ? " open" : ""} st-${statusOf(p.id, m.id)}"><a href="#${m.id}" data-mod="${m.id}"><span class="sec-no">${prefix}</span>${esc(m.title)}</a>${secHtml ? `<ol class="nav-sec">${secHtml}</ol>` : ""}</li>`;
     }).join("");
-    sub.innerHTML = html;
     sub.hidden = false;
+  }
+
+  // 模块展开 / 收起时：只刷新它所在的阶段
+  function updateSubNav(root, p, moduleId) {
+    const stage = p.stages.find((s) => s.modules.some((m) => m.id === moduleId));
+    if (!stage) return;
+    // 手动收起过的阶段，里面又展开了模块：恢复自动（展开）
+    const el = document.getElementById(moduleId);
+    if (el && el.open && navFold[stage.id] === false) delete navFold[stage.id];
+    renderStageSub(root, p, stage);
     observeSections(root);
   }
 

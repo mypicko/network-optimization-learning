@@ -13,6 +13,19 @@
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;");
   }
+  // 主题图标：data/topics.js 的 mark / color
+  function topicOf(id) { return (window.TOPICS || []).find((t) => t.id === id) || { id, title: id }; }
+  function topicMark(t, cls = "") {
+    return t && t.mark ? `<span class="topic-mark ${cls}" style="--tc:${esc(t.color || "#1f6feb")}" aria-hidden="true">${esc(t.mark)}</span>` : "";
+  }
+  // 模块编号（如 3.2）与前后模块
+  function moduleNo(p, id) {
+    for (let i = 0; i < p.stages.length; i++) {
+      const j = p.stages[i].modules.findIndex((m) => m.id === id);
+      if (j >= 0) return `${i}.${j + 1}`;
+    }
+    return "";
+  }
   function allModules(p) {
     return p.stages.flatMap((s) => s.modules);
   }
@@ -88,7 +101,7 @@
     if (!c) { el.hidden = true; return; }
     el.hidden = false;
     el.innerHTML = `<div class="cc-main">
-        <span class="meta">继续学习 · ${esc(c.t.title)}</span>
+        <span class="meta cc-topic">${topicMark(c.t, "sm")}继续学习 · ${esc(c.t.title)}</span>
         <h2><span class="cc-no">${esc(c.no)}</span> ${esc(c.m.title)}</h2>
         <div class="cc-progress">${bar(c.s.pct)}<span class="meta">已学完 ${c.s.done}/${c.s.total} · 约 ${c.m.hours} 小时</span></div>
       </div>
@@ -106,8 +119,8 @@
       const p = window.PATHWAYS[t.id];
       const s = stats(p);
       const quick = t.quick ? `<a class="tc-link" href="${esc(t.quick)}">零基础入门快线 →</a>` : "";
-      return `<div class="topic-card live">
-          <div class="topic-head"><h3><a href="pathway.html?t=${t.id}">${esc(t.title)}</a></h3><span class="badge live">已上线</span></div>
+      return `<div class="topic-card live" style="--tc:${esc(t.color || "#1f6feb")}">
+          <div class="topic-head">${topicMark(t)}<h3><a href="pathway.html?t=${t.id}">${esc(t.title)}</a></h3><span class="badge live">已上线</span></div>
           <p>${esc(t.desc)}</p>
           <div class="meta">${p.stages.length} 个阶段 · ${s.total} 个模块 · 约 ${s.hours} 小时</div>
           ${bar(s.pct)}
@@ -178,6 +191,7 @@
         ${m.practice ? `<h4>实操任务</h4><p class="practice">${esc(m.practice)}</p>` : ""}
         ${toolsHtml(m)}
         <h4>精选资源</h4>${resources}
+        ${pagerHtml(p, m)}
       </div>
     </details>`;
   }
@@ -343,6 +357,40 @@
       : "";
   }
 
+  // 路线页头部的标签页：把同一主题的入门快线、考试、案例、术语收拢到一起
+  function topicTabs(pid) {
+    const t = topicOf(pid);
+    const enc = encodeURIComponent(pid);
+    const tabs = [["路线", null, true]];
+    if (t.quick) tabs.push(["入门快线", t.quick]);
+    tabs.push(["模拟考试", `exam.html?t=${enc}`]);   // 每条路线都有考试：至少有模块自测问答题
+    if (((window.CASES || {})[pid] || []).length) tabs.push(["网优案例", `cases.html?t=${enc}`]);
+    tabs.push(["术语表", "glossary.html"]);
+    return `<nav class="topic-tabs" aria-label="${esc(t.title)} 相关页面">${tabs.map(([label, href, cur]) => cur
+      ? `<span class="tt on" aria-current="page">${label}</span>` : `<a class="tt" href="${esc(href)}">${label}</a>`).join("")}</nav>`;
+  }
+
+  // 模块底部：上一模块 / 下一模块，以及“标为已完成并学下一个”
+  function pagerHtml(p, m) {
+    const mods = allModules(p);
+    const i = mods.findIndex((x) => x.id === m.id);
+    const prev = mods[i - 1], next = mods[i + 1];
+    const link = (x, dir) => x
+      ? `<a class="pg pg-${dir}" href="#${esc(x.id)}" data-goto="${esc(x.id)}"><span class="meta">${dir === "prev" ? "← 上一模块" : "下一模块 →"}</span><span>${esc(moduleNo(p, x.id))} ${esc(x.title)}</span></a>`
+      : `<span class="pg pg-${dir} pg-empty"></span>`;
+    const finish = next ? `<button type="button" class="btn btn-ghost pg-finish" data-finish="${esc(m.id)}" data-next="${esc(next.id)}">标为已完成，学下一个</button>` : "";
+    return `<div class="pager">${link(prev, "prev")}${finish}${link(next, "next")}</div>`;
+  }
+
+  function gotoModule(root, id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.open = true;
+    renderFlows(el);
+    history.replaceState(null, "", `#${id}`);
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   function renderPathway() {
     const params = new URLSearchParams(location.search);
     const pid = params.get("t") || "5g";
@@ -372,11 +420,12 @@
     }).join("");
 
     root.innerHTML = `
-      <section class="hero pathway-hero">
+      <section class="hero pathway-hero" style="--tc:${esc(topicOf(pid).color || "#1f6feb")}">
         <a class="back" href="index.html">← 全部主题</a>
-        <h1>${esc(p.title)}</h1>
+        <h1 class="ph-title">${topicMark(topicOf(pid), "lg")}<span>${esc(p.title)}</span></h1>
         <p>${esc(p.subtitle)}</p>
         <p class="meta">适合：${esc(p.audience)} · ${esc(p.version)}</p>
+        ${topicTabs(pid)}
         <div class="overall"></div>
         <button class="btn" id="continue">继续学习</button>
         <span class="review-slot">${reviewLink()}</span>
@@ -440,6 +489,10 @@
       // 点击复选框只切换完成状态，不展开 / 收起模块
       if (e.target.closest(".check")) e.stopPropagation();
       if (handleSelfQuiz(e, p)) return;
+      const go = e.target.closest("[data-goto]");
+      if (go) { e.preventDefault(); gotoModule(root, go.dataset.goto); return; }
+      const fin = e.target.closest("[data-finish]");
+      if (fin) { MS.set(p.id, fin.dataset.finish, "done"); document.getElementById(fin.dataset.finish).open = false; gotoModule(root, fin.dataset.next); return; }
       const setBtn = e.target.closest("[data-set-status]");
       if (setBtn) {
         MS.set(p.id, setBtn.dataset.mid, setBtn.dataset.setStatus);

@@ -676,3 +676,46 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
   .cc-progress .bar { flex: 1 1 100%; }
   .site-nav { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); padding-right: 24px; }
 }
+
+/* ───────── UI 第二档优化（2026-11-27） ───────── */
+/* 网站标志 */
+.brand { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+.brand:hover { text-decoration: none; }
+.brand-logo { display: block; width: 24px; height: 24px; }
+
+/* 主题图标与主题色 */
+.topic-mark { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 34px; height: 34px; border-radius: 9px;
+  background: var(--tc, var(--accent)); color: #fff; font-weight: 700; font-size: 14px; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.topic-mark.sm { width: 20px; height: 20px; border-radius: 5px; font-size: 10px; vertical-align: -5px; margin-right: 6px; }
+.topic-mark.lg { width: 44px; height: 44px; border-radius: 11px; font-size: 18px; }
+.topic-card.live .topic-head { display: flex; align-items: center; gap: 10px; }
+.topic-card.live .topic-head h3 { flex: 1; min-width: 0; }
+.topic-card.live { border-top: 3px solid var(--tc, var(--accent)); }
+.topic-card.live .bar span { background: var(--tc, var(--done)); }
+.ph-title { display: flex; align-items: center; gap: 12px; }
+
+/* 路线页头部标签页 */
+.topic-tabs { display: flex; gap: 4px 22px; flex-wrap: wrap; margin: 6px 0 14px; border-bottom: 1px solid var(--border); }
+.topic-tabs .tt { padding: 8px 0; margin-bottom: -1px; border-bottom: 2px solid transparent; color: var(--muted); font-size: 15px; white-space: nowrap; }
+.topic-tabs a.tt:hover { color: var(--text); text-decoration: none; }
+.topic-tabs .tt.on { color: var(--text); font-weight: 600; border-bottom-color: var(--tc, var(--accent)); }
+
+/* 模块底部翻页 */
+.pager { display: flex; align-items: stretch; gap: 12px; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--border); }
+.pg { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; }
+.pg:hover { border-color: var(--accent); text-decoration: none; }
+.pg span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.pg-next { text-align: right; align-items: flex-end; }
+.pg-empty { border: 0; }
+.pg-finish { flex: none; align-self: center; font-size: 14px; }
+@media (max-width: 760px) {
+  .pager { flex-wrap: wrap; }
+  .pg-finish { order: -1; flex: 1 1 100%; text-align: center; }
+  .topic-tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .topic-tabs::-webkit-scrollbar { display: none; }
+  .ph-title { gap: 10px; }
+  .topic-mark.lg { width: 36px; height: 36px; font-size: 15px; }
+}
+.pg span { display: block; max-width: 100%; }
+.pg span:last-child { width: 100%; }
+.topic-tabs { margin-top: 12px; }

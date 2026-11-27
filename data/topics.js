@@ -1,7 +1,8 @@
 // 主题目录：status = "live" 表示已上线，"planned" 表示规划中；quick 为入门快线地址（可选）
+// mark：主题图标上的短字（2–4 个字符）  color：主题色（图标、路线页头部、首页卡片顶边）
 window.TOPICS = [
-  { id: "5g", title: "5G 移动通信", desc: "NR 空口、5GC、端到端信令、网优与演进", status: "live", quick: "quickstart.html?t=5g" },
-  { id: "lte", title: "4G LTE", desc: "E-UTRAN、EPC、VoLTE 与 LTE 网优", status: "live" },
+  { id: "5g", mark: "5G", color: "#1f6feb", title: "5G 移动通信", desc: "NR 空口、5GC、端到端信令、网优与演进", status: "live", quick: "quickstart.html?t=5g" },
+  { id: "lte", mark: "4G", color: "#0f8b8d", title: "4G LTE", desc: "E-UTRAN、EPC、VoLTE 与 LTE 网优", status: "live" },
   { id: "ims", title: "IMS 与语音", desc: "SIP、VoLTE、VoNR、IMS 核心网", status: "planned" },
   { id: "rf", title: "射频与天线", desc: "链路预算、天线原理、射频指标与测试", status: "planned" },
   { id: "transport", title: "承载与传输网", desc: "IPRAN、SPN、OTN、时钟同步", status: "planned" },

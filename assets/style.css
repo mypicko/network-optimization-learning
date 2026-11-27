@@ -619,3 +619,60 @@ mark.note-comment { background: rgba(31, 111, 235, .12); border-bottom: 2px soli
 .topic-switch { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 4px; }
 .topic-switch .chip { border: 1px solid var(--border); text-decoration: none; color: var(--text); }
 .topic-switch .chip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ───────── UI 第一档优化（2026-11-26） ───────── */
+/* 顶栏：当前页高亮；手机上品牌 + 搜索一行，导航单独一行横向滑动，不再按字断行 */
+.site-nav a { white-space: nowrap; color: var(--text); padding: 4px 2px; border-bottom: 2px solid transparent; }
+.site-nav a:hover { color: var(--accent); text-decoration: none; }
+.site-nav a[aria-current="page"] { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.site-header .wrap { align-items: center; }
+@media (max-width: 760px) {
+  .site-header .wrap { gap: 8px 12px; padding-top: 10px; padding-bottom: 0; }
+  .tagline { display: none; }
+  .site-search { order: 2; flex: 1; width: auto; }
+  .site-nav { order: 3; width: 100%; gap: 18px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+  .site-nav::-webkit-scrollbar { display: none; }
+  .site-nav a { padding: 6px 0 4px; }
+}
+
+/* 首页：继续学习卡片、已上线主题大卡、规划中一行 */
+.continue-card { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--accent); border-radius: var(--radius); padding: 16px 20px; margin: 4px 0 16px; }
+.continue-card[hidden] { display: none; }
+.continue-card h2 { margin: 2px 0 8px; font-size: 19px; }
+.cc-no { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 4px; }
+.cc-main { min-width: 0; flex: 1; }
+.cc-progress { display: flex; align-items: center; gap: 12px; }
+.cc-progress .bar { flex: 0 1 260px; margin: 0; }
+.continue-card .btn { flex: none; }
+.topic-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+.topic-card.live { padding: 20px; }
+.topic-card.live h3 { font-size: 19px; }
+.topic-card.live h3 a { color: var(--text); }
+.topic-card.live:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(31, 111, 235, 0.08); }
+.tc-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin-top: 14px; }
+.tc-link { font-size: 14px; }
+.topics-planned { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 16px 0 0; }
+.topics-planned:empty { display: none; }
+.topics-planned .chip { color: var(--muted); cursor: default; }
+@media (max-width: 760px) {
+  .topic-grid { grid-template-columns: 1fr; }
+  .continue-card { flex-direction: column; align-items: stretch; padding: 14px 16px; }
+  .continue-card .btn { text-align: center; }
+}
+
+/* 知识讲解：去掉外层边框，正文直接排在模块里；表格、提示框统一样式 */
+.explain { border: 0; background: transparent; padding: 0; border-radius: 0; }
+@media (max-width: 760px) { .explain { padding: 0; } }
+.explain-toc { background: var(--bg); border-radius: 8px; padding: 8px 12px; }
+.table-wrap { border: 1px solid var(--border); border-radius: 8px; }
+.table-wrap table { border-style: hidden; }
+.table-wrap tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--chip) 45%, transparent); }
+.tip { background: var(--done-soft); border-left: 3px solid var(--done); border-radius: 0 8px 8px 0; }
+.quick-banner { border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; }
+.topic-grid { grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+@media (max-width: 760px) {
+  .topic-grid { grid-template-columns: 1fr; }
+  .cc-progress { flex-wrap: wrap; gap: 4px 12px; }
+  .cc-progress .bar { flex: 1 1 100%; }
+  .site-nav { -webkit-mask-image: linear-gradient(to right, #000 85%, transparent); mask-image: linear-gradient(to right, #000 85%, transparent); padding-right: 24px; }
+}

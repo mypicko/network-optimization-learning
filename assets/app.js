@@ -54,27 +54,70 @@
   }
 
   // ---------- 首页 ----------
+  const LAST_KEY = "pathway-last-v1";   // 最近打开的模块：{ t 主题, m 模块 id, at 时间 }
+
+  // 继续学习的目标：优先最近打开的模块（已学完则取该路径的下一个），否则取有进度的路径里的下一个模块
+  function continueTarget() {
+    let last = null;
+    try { last = JSON.parse(localStorage.getItem(LAST_KEY)); } catch (e) { /* 忽略 */ }
+    const live = (window.TOPICS || []).filter((t) => t.status === "live" && window.PATHWAYS[t.id]);
+    const info = (t) => { const p = window.PATHWAYS[t.id]; return { t, p, s: stats(p) }; };
+    let pick = null;
+    const lt = last && live.find((t) => t.id === last.t);
+    if (lt) {
+      const x = info(lt);
+      const mods = allModules(x.p);
+      const m = mods.find((mm) => mm.id === last.m);
+      const st = m && statusOf(x.p.id, m.id);
+      pick = { ...x, m: m && st !== "done" && st !== "skip" ? m : x.s.next };
+    } else {
+      const started = live.map(info).filter((x) => x.s.done + x.s.learning > 0).sort((a, b) => b.s.done + b.s.learning - (a.s.done + a.s.learning));
+      if (started[0]) pick = { ...started[0], m: started[0].s.next };
+    }
+    if (!pick || !pick.m) return null;
+    const mods = allModules(pick.p);
+    const si = pick.p.stages.findIndex((st) => st.modules.some((mm) => mm.id === pick.m.id));
+    const mi = pick.p.stages[si].modules.findIndex((mm) => mm.id === pick.m.id);
+    return { ...pick, no: `${si}.${mi + 1}`, idx: mods.indexOf(pick.m) };
+  }
+
+  function renderContinueCard() {
+    const el = document.getElementById("continue-card");
+    if (!el) return;
+    const c = continueTarget();
+    if (!c) { el.hidden = true; return; }
+    el.hidden = false;
+    el.innerHTML = `<div class="cc-main">
+        <span class="meta">继续学习 · ${esc(c.t.title)}</span>
+        <h2><span class="cc-no">${esc(c.no)}</span> ${esc(c.m.title)}</h2>
+        <div class="cc-progress">${bar(c.s.pct)}<span class="meta">已学完 ${c.s.done}/${c.s.total} · 约 ${c.m.hours} 小时</span></div>
+      </div>
+      <a class="btn" href="pathway.html?t=${encodeURIComponent(c.t.id)}#${encodeURIComponent(c.m.id)}">继续 →</a>`;
+  }
+
   function renderHome() {
+    renderContinueCard();
     renderReviewCard();
     window.addEventListener("review-change", renderReviewCard);
     const el = document.getElementById("topics");
-    el.innerHTML = window.TOPICS.map((t) => {
+    const live = window.TOPICS.filter((t) => t.status === "live" && window.PATHWAYS[t.id]);
+    const planned = window.TOPICS.filter((t) => !live.includes(t));
+    el.innerHTML = live.map((t) => {
       const p = window.PATHWAYS[t.id];
-      if (t.status === "live" && p) {
-        const s = stats(p);
-        return `<a class="topic-card live" href="pathway.html?t=${t.id}">
-          <div class="topic-head"><h3>${esc(t.title)}</h3><span class="badge live">已上线</span></div>
+      const s = stats(p);
+      const quick = t.quick ? `<a class="tc-link" href="${esc(t.quick)}">零基础入门快线 →</a>` : "";
+      return `<div class="topic-card live">
+          <div class="topic-head"><h3><a href="pathway.html?t=${t.id}">${esc(t.title)}</a></h3><span class="badge live">已上线</span></div>
           <p>${esc(t.desc)}</p>
           <div class="meta">${p.stages.length} 个阶段 · ${s.total} 个模块 · 约 ${s.hours} 小时</div>
           ${bar(s.pct)}
           <div class="meta">已学完 ${s.done}/${s.total}${s.learning ? ` · 学习中 ${s.learning}` : ""}</div>
-        </a>`;
-      }
-      return `<div class="topic-card planned">
-        <div class="topic-head"><h3>${esc(t.title)}</h3><span class="badge">规划中</span></div>
-        <p>${esc(t.desc)}</p>
-      </div>`;
+          <div class="tc-actions"><a class="btn" href="pathway.html?t=${t.id}">${s.done + s.learning ? "进入路径" : "开始学习"}</a>${quick}
+            <a class="tc-link" href="exam.html?t=${t.id}">模拟考试</a></div>
+        </div>`;
     }).join("");
+    const pl = document.getElementById("topics-planned");
+    if (pl) pl.innerHTML = planned.length ? `<span class="meta">规划中：</span>${planned.map((t) => `<span class="chip" title="${esc(t.desc)}">${esc(t.title)}</span>`).join("")}` : "";
   }
 
   // ---------- 路径页 ----------
@@ -432,7 +475,10 @@
     });
     root.addEventListener("toggle", (e) => {
       if (!(e.target.classList && e.target.classList.contains("module"))) return;
-      if (e.target.open) renderFlows(e.target);
+      if (e.target.open) {
+        renderFlows(e.target);
+        try { localStorage.setItem(LAST_KEY, JSON.stringify({ t: p.id, m: e.target.id, at: Date.now() })); } catch (err) { /* 存储不可用时首页不显示“继续学习” */ }
+      }
       updateSubNav(root, p, e.target.id);
     }, true);
 
